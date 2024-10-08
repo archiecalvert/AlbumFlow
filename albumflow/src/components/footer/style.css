@@ -1,0 +1,23 @@
+.footer-container{
+    bottom:0px;
+    position: absolute;
+    height:35px;
+    width: 100%;
+    padding-left: 2.5%;
+}
+.footer-content{
+    position:absolute;
+    justify-content: space-between;
+    display: flex;
+    width:95%;
+    color: #808080;
+}
+.links{
+    position:relative;
+    justify-content: space-between;
+    width:150px;
+    display: flex;
+}
+
+
+
