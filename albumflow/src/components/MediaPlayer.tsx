@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, Card } from "@nextui-org/react";
+import { Image, Card, Slider, Spacer, ScrollShadow } from "@nextui-org/react";
 export default function MediaPlayer()
 {
     return(
@@ -10,10 +10,14 @@ export default function MediaPlayer()
                             src="https://thisis-images.spotifycdn.com/37i9dQZF1DZ06evO1W5c58-default.jpg"
                             isBlurred></Image>
                 </div>
-                <div className="w-full h-[10%] flex"></div>
-                
-                <div className="w-[75%] max-w-[550px] h-[150px] m-auto outline-10" id = "media-controls-container">
-                    <Card className="bg-[#202020] w-full h-full outline-10"></Card>
+                <Spacer y={24}></Spacer>
+                <div className="w-[75%] max-w-[550px] h-[200px] m-auto" id = "media-controls-container">
+                    
+                    <Card className="bg-[#202020] w-full h-full outline-10">
+                        <h1 className="text-white flex relative mx-auto top-[20px] text-[20px]"><b>This is Clairo</b></h1>
+                        <h1 className="text-neutral-500 max-w-[75%] flex relative mx-auto top-[30px]">Clairo</h1>
+                        <Slider className="w-[90%] h-[10px] top-[50px] relative flex mx-auto" hideThumb size="sm" color="success"></Slider>
+                    </Card>
                 </div>
             <div>
             </div>
