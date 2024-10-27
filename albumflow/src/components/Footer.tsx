@@ -14,7 +14,7 @@ import {
 export default function Footer()
 {
     return(
-    <div className="w-full bg-transparent absolute bottom-0 flex">
+    <div className="w-full bg-transparent fixed bottom-0 flex">
     <Navbar className="w-full bg-transparent flex">
         <NavbarBrand>
             <h1 className="text-[#808080] text-bold">Archie Calvert</h1>

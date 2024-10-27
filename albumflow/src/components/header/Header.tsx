@@ -13,7 +13,7 @@ import {
   export default function Header()
   {
     return(
-        <Navbar isBlurred className = "bg-[#121212] flex">
+        <Navbar isBlurred className = "bg-[#121212] fixed top-0">
             <NavbarBrand className="flex space-x-4">
                 <img src="./logo.png" className = "w-12 h-12"></img>
                 <h1 className="text-white text-[20px] text-bold">AlbumFlow</h1>
