@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {
     Navbar, 
     NavbarBrand, 
@@ -7,11 +7,19 @@ import {
     NavbarMenuToggle,
     NavbarMenu, 
     NavbarMenuItem,
-    Button
+    Button,
+    Modal,
+    ModalContent,
+    ModalHeader,
+    Input,
+    ModalBody,
+    ModalFooter
   } from "@nextui-org/react";
+  import LogInModal from "../LogInModal"
 
   export default function Header()
   {
+    const[modalState, toggleModal] = useState(false);
     return(
         <Navbar isBlurred className = "bg-[#121212] fixed top-0">
             <NavbarBrand className="flex space-x-4">
@@ -19,9 +27,11 @@ import {
                 <h1 className="text-white text-[20px] text-bold">AlbumFlow</h1>
             </NavbarBrand>
             <NavbarItem className="">
-                <Button className="bg-[#1DB954] text-bold">Log In</Button>
+                <Button className="bg-[#1DB954] text-black text-bold" onClick={() => {toggleModal(true)}}>Log In</Button>
+                {modalState && <LogInModal modalState={modalState} setModal={toggleModal}/>}
             </NavbarItem>
-
         </Navbar>
-    )
+        
+    );
   }
+
