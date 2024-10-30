@@ -22,12 +22,12 @@ import {
     const[modalState, toggleModal] = useState(false);
     return(
         <Navbar isBlurred className = "bg-[#121212] fixed top-0">
-            <NavbarBrand className="flex space-x-4">
+            <a href="/"><NavbarBrand className="flex space-x-4">
                 <img src="./logo.png" className = "w-12 h-12"></img>
                 <h1 className="text-white text-[20px] text-bold">AlbumFlow</h1>
-            </NavbarBrand>
+            </NavbarBrand></a>
             <NavbarItem className="">
-                <Button className="bg-[#1DB954] text-black text-bold" onClick={() => {toggleModal(true)}}>Log In</Button>
+                <Button className="bg-[#1DB954] text-[#000000]" onClick={() => {toggleModal(true)}}>Log In</Button>
                 {modalState && <LogInModal modalState={modalState} setModal={toggleModal}/>}
             </NavbarItem>
         </Navbar>

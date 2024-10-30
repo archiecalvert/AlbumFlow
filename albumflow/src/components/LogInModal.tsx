@@ -19,9 +19,9 @@ import {
 
 export default function LogInModal({modalState, setModal})
   {
-    const [clientIDVal, changeID] = React.useState("");
-    const [clientSecVal, changeSec] = React.useState("");
-    const [uriVal, changeURI] = React.useState("");
+    const [clientIDVal, changeID] = React.useState(localStorage["client_id"]);
+    const [clientSecVal, changeSec] = React.useState(localStorage["client_secret"]);
+    const [uriVal, changeURI] = React.useState(localStorage["redirect_uri"]);
     return(
         <Modal isOpen={modalState} placement="center" hideCloseButton = {true} shadow="lg" backdrop="blur" disableAnimation={false} className="outline outline-2 outline-[#303030]">
             <ModalContent className="bg-[#1C1C1C] ">
@@ -32,7 +32,7 @@ export default function LogInModal({modalState, setModal})
                         placeholder=""
                         variant="bordered"
                         id="client_id_input"
-                        value={localStorage["client_id"]}
+                        value={clientIDVal}
                         onValueChange={changeID}
                     />
                     <Input
@@ -40,7 +40,7 @@ export default function LogInModal({modalState, setModal})
                         placeholder=""
                         variant="bordered"
                         id = "client_secret_input"
-                        value={localStorage["client_secret"]}
+                        value={clientSecVal}
                         onValueChange={changeSec}
                     />
                     <Input
@@ -48,7 +48,7 @@ export default function LogInModal({modalState, setModal})
                         placeholder=""
                         variant="bordered"
                         id="redirect_uri_input"
-                        value={localStorage["redirect_uri"]}
+                        value={uriVal}
                         onValueChange={changeURI}
                     />
                 </ModalBody>

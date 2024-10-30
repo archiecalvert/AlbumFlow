@@ -20,9 +20,9 @@ export default function Footer()
             <h1 className="text-[#808080] text-bold">Archie Calvert</h1>
         </NavbarBrand>
         <NavbarItem>
-            <span className="space-x-7 text-bold list-none">
-                <Link className="text-[#1DB954]" href="https://github.com/archiecalvert">GitHub</Link>
-                <Link className="text-[#1DB954]" href="https://linkedin.com/in/archiecalvert">LinkedIn</Link>
+            <span className="space-x-7 text-bold list-none flex m-auto">
+                <a href = "https://github.com/archiecalvert" target="_blank"><img src = "github.png" className="w-6"></img></a>
+                <a href = "https://linkedin.com/in/archiecalvert" target="_blank"><img src = "linkedin.png" className="w-6"></img></a>
             </span>
         </NavbarItem>
     </Navbar>  
