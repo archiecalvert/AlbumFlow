@@ -15,8 +15,11 @@ function MediaPlayer()
     const [CurrentSong, SetCurrentSong] = useState(null);
     const [CurrentItem, SetCurrentItem] = useState(0);
     const [PlaybackState, SetPlaybackState] = useState(false);
+    const [windowWidth, SetWindowWidth] = useState(window.innerWidth);
+    const [windowHeight, SetWindowHeight] = useState(window.innerHeight);
     let key = 0;
     let ItemCount = changeItemCount();
+    window.addEventListener("resize", ()=>{console.log("resizing");SetWindowWidth(window.innerWidth); SetWindowHeight(window.innerHeight);});
     //Effectively the constructor
     useEffect(() => {
         SetAuthCode(new URLSearchParams(window.location.search).get("code"));
@@ -28,14 +31,14 @@ function MediaPlayer()
     
     function changeItemCount(){
         let width = window.innerWidth;        
-        if (width < 500){
+        if (width < 700){
             return 2;
         }
-        else if(width < 700)
+        else if(width < 900)
         {
             return 3;
         }
-        else if(width < 900){
+        else if(width < 1100){
             return 4;
         }
         else{
@@ -48,9 +51,9 @@ function MediaPlayer()
     }, [key])
     return(
         
-        <div className = "top-[150px] bg-transparent h-[60%] w-[100%] min-w-[250px] m-auto flex flex-wrap" id="container">
-            <div className="w-[100%] h-[600px] min-w-[250px]" id="container">
-                <Swiper key={CurrentItem} effect={'coverflow'}
+        <div className = "absolute top-[15%] bg-transparent w-[100%] min-w-[250px] m-auto flex flex-wrap" id="container">
+            <div className="w-[100%] min-w-[250px]" id="container-inner">
+                <Swiper key={CurrentItem} effect={'coverflow'} id="swiper"
                     grabCursor={true}
                     centeredSlides={true}
                     slidesPerView={ItemCount}
@@ -63,7 +66,7 @@ function MediaPlayer()
                     }}
                     pagination={false}
                     modules={[EffectCoverflow, Navigation]}
-                    className = "top-[150px] min-w-[250px]">
+                    className = "top-[0px] min-w-[250px] h-[100%]">
                     {QueueData.map((item, index) =>{
                         if(item.artworkURL == null)
                         {
@@ -88,11 +91,11 @@ function MediaPlayer()
                 </Swiper>
             </div>
             {CurrentSong && CurrentSong.name != null &&
-                <div className="w-[75%] max-w-[550px] h-[200px] m-auto" id = "media-controls-container">
-                    <Card className="bg-[#202020] w-full h-full outline-[4px] outline-[#191919]" isBlurred={true}>
+                <div className={windowWidth > windowHeight ? "mt-[0px] w-[75%] max-w-[550px] h-[200px] m-auto" : "mt-[0px] w-[75%] max-w-[550px] h-[165px] m-auto"} id = "media-controls-container">
+                    <Card className="bg-[#202020] w-[100%] h-[100%] outline-[4px] outline-[#191919]" isBlurred={true}>
                         <h1 className="text-white flex relative mx-auto top-[20px] text-[20px] max-w-[90%]"><b>{CurrentSong && CurrentSong.name}{!CurrentSong && "Loading.."}</b></h1>
                         <h1 className="text-neutral-500 max-w-[75%] flex relative mx-auto top-[30px]">{CurrentSong && CurrentSong.artist}{!CurrentSong && "Loading.."}</h1>
-                        <Slider className="w-[90%] h-[10px] top-[50px] relative flex mx-auto" hideThumb size="sm" color="success"></Slider>
+                        <Slider className={windowWidth > windowHeight ? "w-[90%] h-[10px] top-[50px] relative flex mx-auto" : "w-[90%] h-[10px] top-[30px] relative flex mx-auto"} hideThumb size="sm" color="success"></Slider>
                         <div className = "absolute bottom-[20px] w-[100%]">
                             <span className="w-[40%] min-w-[150px] h-[40px] flex relative justify-between m-auto align-center">
                             <Image radius="none" src = "mediacontrols/light/prev.png" className="w-[30px] relative" onClick={()=>{PlayPrev().then(()=>{ReloadData()})}}/>

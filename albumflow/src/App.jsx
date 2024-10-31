@@ -9,11 +9,11 @@ const code = new URLSearchParams(window.location.search).get("code");
 function App()
 {
     return(
-        <div className = 'h-screen bg-[#0C0C0C]'>
+        <div className = 'h-[100%] bg-[#0C0C0C]'>
             <Header/>
                 {!code && <DashboardHome/>}
                 {code && <MediaPlayer/>}
-            
+            <Footer/>
         </div>
     );
 }
