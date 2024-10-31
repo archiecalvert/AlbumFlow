@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import {Button, modal, toggle} from "@nextui-org/react"
 import LogInModal from "./LogInModal";
+import { RequestAuthCode } from "./API";
 
 
 export default function DashboardHome()
@@ -14,8 +15,7 @@ export default function DashboardHome()
                 <h1 className = "text-[20px] mt-[30px] text-neutral-400">This is a project that reimagines the coverflow design for Spotify.</h1>
             </div>
             
-            <Button className="bg-[#1DB954] top-[300px] relative flex m-auto" size="lg" onClick={()=>{toggleModal(true)}}>Log In</Button>
-            {modalState && <LogInModal modalState={modalState} setModal={toggleModal}/>}
+            <Button className="bg-[#1DB954] top-[300px] relative flex m-auto" size="lg" onClick={()=>{RequestAuthCode()}}>Log In</Button>
         </div>
     );
 }

@@ -19,9 +19,9 @@ import {
 
 export default function LogInModal({modalState, setModal})
   {
-    const [clientIDVal, changeID] = React.useState(localStorage["client_id"]);
-    const [clientSecVal, changeSec] = React.useState(localStorage["client_secret"]);
-    const [uriVal, changeURI] = React.useState(localStorage["redirect_uri"]);
+    const [clientIDVal, changeID] = React.useState("");
+    const [clientSecVal, changeSec] = React.useState("");
+    const [uriVal, changeURI] = React.useState("");
     return(
         <Modal isOpen={modalState} placement="center" hideCloseButton = {true} shadow="lg" backdrop="blur" disableAnimation={false} className="outline outline-2 outline-[#303030]">
             <ModalContent className="bg-[#1C1C1C] ">
@@ -56,7 +56,7 @@ export default function LogInModal({modalState, setModal})
                     <Button className="bg-[#303030] text-white"variant="flat" onClick={()=>{setModal(false)}}>
                     Close
                     </Button>
-                    <Button className="bg-[#1DB954]" onClick={()=>{RequestAuthCode(clientIDVal, clientSecVal, uriVal);}}>
+                    <Button className="bg-[#1DB954]" onClick={()=>{RequestAuthCode();}}>
                     Log in
                     </Button>
                 </ModalFooter>

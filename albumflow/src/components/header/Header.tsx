@@ -15,8 +15,8 @@ import {
     ModalBody,
     ModalFooter
   } from "@nextui-org/react";
-  import LogInModal from "../LogInModal"
-
+import LogInModal from "../LogInModal"
+import {RequestAuthCode} from "../API"
   export default function Header()
   {
     const[modalState, toggleModal] = useState(false);
@@ -27,8 +27,7 @@ import {
                 <h1 className="text-white text-[20px] text-bold">AlbumFlow</h1>
             </NavbarBrand></a>
             <NavbarItem className="">
-                <Button className="bg-[#1DB954] text-[#000000]" onClick={() => {toggleModal(true)}}>Log In</Button>
-                {modalState && <LogInModal modalState={modalState} setModal={toggleModal}/>}
+                <Button className="bg-[#1DB954] text-[#000000]" onClick={() => {RequestAuthCode()}}>Log In</Button>
             </NavbarItem>
         </Navbar>
         

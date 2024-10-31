@@ -2,10 +2,13 @@ import React, {useState, useEffect} from "react"
 import axios from "axios"
 import { m } from "framer-motion";
 
-let CLIENT_SECRET = "";
-let CLIENT_ID = "";
-let REDIRECT_URI = "";
 let DEBUG = false;
+let CLIENT_ID = "4dcdaa9525454b5d95a9e39bdcf64a62";
+let REDIRECT_URI = "https://archiecalvert.github.io";
+if(location.hostname == "localhost")
+{
+    REDIRECT_URI = "http://localhost:5173";
+}
 let SCOPE = "user-modify-playback-state user-read-playback-state user-read-currently-playing";
 //USED TO GET TOKENS FROM THE API
 const AUTH_URL = "https://accounts.spotify.com/authorize";
@@ -18,55 +21,69 @@ const BASE_URL = "https://api.spotify.com/v1/";
 
 //This function gets the authorization code from the spotify api.
 //This code is then used to get the access token and the refresh token, where these can be used to request data from the spotify api
-export function RequestAuthCode(id, secret, uri)
+export async function RequestAuthCode()
 {
-    CLIENT_ID = id;
-    CLIENT_SECRET = secret;
-    REDIRECT_URI = uri;
-    //STORES THE CLIENT CREDENTIALS TO LOCAL STORAGE
-    localStorage["client_id"] = id;
-    localStorage["client_secret"] = secret;
-    localStorage["redirect_uri"] = uri;
-    //CLEARS THE ACCESS TOKENS TO AVOID OLD ONES BEING USED
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("token_type");
-    //BUILDS THE AUTH URL WHICH GOES TO THE LOGIN PAGE
-    var request_url = AUTH_URL + "?response_type=code";
-    request_url += '&client_id=' + encodeURIComponent(CLIENT_ID);
-    request_url += '&scope=' + encodeURIComponent(SCOPE);
-    request_url += '&redirect_uri=' + encodeURIComponent(REDIRECT_URI);
-    //REDIRECTS THE USER TO THE LOGIN PAGE
-    window.location.href = request_url
+    console.log(REDIRECT_URI);
+    const generateRandomString = (length) => {
+        const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const values = crypto.getRandomValues(new Uint8Array(length));
+        return values.reduce((acc, x) => acc + possible[x % possible.length], "");
+    }
+      
+    const codeVerifier  = generateRandomString(64);
+    const sha256 = async (plain) => {
+        const encoder = new TextEncoder()
+        const data = encoder.encode(plain)
+        return window.crypto.subtle.digest('SHA-256', data)
+    }
+    const base64encode = (input) => {
+        return btoa(String.fromCharCode(...new Uint8Array(input)))
+          .replace(/=/g, '')
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_');
+    }
+    const hashed = await sha256(codeVerifier)
+    const codeChallenge = base64encode(hashed);
+    window.localStorage["code_verifier"] = codeVerifier;
+    const authUrl = new URL("https://accounts.spotify.com/authorize")
+    const params =  {
+        response_type: 'code',
+        client_id: CLIENT_ID,
+        scope: SCOPE,
+        code_challenge_method: 'S256',
+        code_challenge: codeChallenge,
+        redirect_uri: REDIRECT_URI,
+      }
+      
+      authUrl.search = new URLSearchParams(params).toString();
+      window.location.href = authUrl.toString();
 }
 
 export async function GetAccessToken(code)
 {
     //GETS THE LOCALLY STORED DATA FROM THE AUTHORIZE CODE STAGE
     let data = null;
-    CLIENT_ID = localStorage["client_id"];
-    CLIENT_SECRET = localStorage["client_secret"];
-    REDIRECT_URI = localStorage["redirect_uri"];
     localStorage["access_token"] = "";
     let attempt = {};
     //REQUEST TO GET THE ACCESS TOKEN AND REFRESH TOKEN
     attempt = await axios.post(REFRESH_URL, {
         //BODY/PAYLOAD OF THE REQUEST
+        client_id: CLIENT_ID,
         grant_type: "authorization_code",
         code: code,
-        redirect_uri: REDIRECT_URI
+        redirect_uri: REDIRECT_URI,
+        code_verifier: localStorage["code_verifier"]
     },
     {
         headers:{
             "Content-Type": "application/x-www-form-urlencoded",
-            "Authorization": "Basic " + btoa(CLIENT_ID + ':' + CLIENT_SECRET)
         },
     }).then((res)=> {
         localStorage["access_token"] = res.data.access_token;
         data = res;
         return res;
     }).catch(e => {
-        if(!DEBUG) RequestAuthCode(localStorage["client_id"], localStorage["client_secret"], localStorage["redirect_uri"]);
+        if(!DEBUG) RequestAuthCode();
         
     });
     if(data!= null)
@@ -120,7 +137,7 @@ export async function GetQueueData(access_token)
         localStorage["queueData"] = JSON.stringify(albumData);
         return albumData;
     }).catch(e => {
-        if(!DEBUG) RequestAuthCode(localStorage["client_id"], localStorage["client_secret"], localStorage["redirect_uri"]);
+        if(!DEBUG) RequestAuthCode();
         
     });
     return albumData;
@@ -176,7 +193,6 @@ export async function PausePlayback()
     }).catch(e => {
         if(e.status == 403){
             localStorage["isPlaying"] = true;
-            console.log("User has paused playback");
             axios.put(BASE_URL + "me/player/play",
                 {
                     Authorization: "Bearer " + localStorage["access_token"],
