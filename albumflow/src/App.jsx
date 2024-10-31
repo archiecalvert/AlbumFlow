@@ -13,7 +13,7 @@ function App()
             <Header/>
                 {!code && <DashboardHome/>}
                 {code && <MediaPlayer/>}
-            <Footer></Footer>
+            
         </div>
     );
 }

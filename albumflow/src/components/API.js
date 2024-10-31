@@ -5,7 +5,8 @@ import { m } from "framer-motion";
 let CLIENT_SECRET = "";
 let CLIENT_ID = "";
 let REDIRECT_URI = "";
-let SCOPE = "user-read-playback-state user-read-currently-playing";
+let DEBUG = false;
+let SCOPE = "user-modify-playback-state user-read-playback-state user-read-currently-playing";
 //USED TO GET TOKENS FROM THE API
 const AUTH_URL = "https://accounts.spotify.com/authorize";
 
@@ -19,7 +20,6 @@ const BASE_URL = "https://api.spotify.com/v1/";
 //This code is then used to get the access token and the refresh token, where these can be used to request data from the spotify api
 export function RequestAuthCode(id, secret, uri)
 {
-    console.log("logging-in");
     CLIENT_ID = id;
     CLIENT_SECRET = secret;
     REDIRECT_URI = uri;
@@ -47,6 +47,7 @@ export async function GetAccessToken(code)
     CLIENT_ID = localStorage["client_id"];
     CLIENT_SECRET = localStorage["client_secret"];
     REDIRECT_URI = localStorage["redirect_uri"];
+    localStorage["access_token"] = "";
     let attempt = {};
     //REQUEST TO GET THE ACCESS TOKEN AND REFRESH TOKEN
     attempt = await axios.post(REFRESH_URL, {
@@ -65,11 +66,9 @@ export async function GetAccessToken(code)
         data = res;
         return res;
     }).catch(e => {
-        console.log("reloading...");
-        RequestAuthCode(localStorage["client_id"], localStorage["client_secret"], localStorage["redirect_uri"]);
+        if(!DEBUG) RequestAuthCode(localStorage["client_id"], localStorage["client_secret"], localStorage["redirect_uri"]);
         
     });
-    console.log(data);
     if(data!= null)
     {
         return data;
@@ -85,16 +84,23 @@ export async function GetQueueData(access_token)
         },  
     }).then((res)=> {
         let queueData = res.data.queue;
-
         let itemsCount = queueData.length;
-        console.log(itemsCount);
         if(res.data.currently_playing!=null){
             albumData.push({
                 name: res.data.currently_playing.name,
+                
                 artist: res.data.currently_playing.artists[0].name,
                 artworkURL: res.data.currently_playing.album.images[0].url,
             });
+            if(res.data.currently_playing.artists.length > 1)
+            {
+                for(let i = 0; i < res.data.currently_playing.artists.length -1; i++)
+                {
+                    albumData[0].artist += ", " + res.data.currently_playing.artists[i+1].name;
+                }
+            }
         }
+        
         for(let i=0; i<itemsCount; i++)
         {
             albumData.push({
@@ -114,9 +120,75 @@ export async function GetQueueData(access_token)
         localStorage["queueData"] = JSON.stringify(albumData);
         return albumData;
     }).catch(e => {
-        console.log("reloading...");
-        RequestAuthCode(localStorage["client_id"], localStorage["client_secret"], localStorage["redirect_uri"]);
+        if(!DEBUG) RequestAuthCode(localStorage["client_id"], localStorage["client_secret"], localStorage["redirect_uri"]);
         
     });
     return albumData;
+
+}
+export async function GetCurrentSong()
+{
+    let data = null;
+    await GetQueueData(localStorage["access_token"]).then((res)=> {
+        if(res.length > 0)
+        {
+            data = res[0];
+            
+        }
+    })
+    if(data == null) return null;
+    
+    return ({
+        name: data.name,
+        artist: data.artist,
+    });
+}
+export async function SendRequest(url)
+{
+    console.log(localStorage["access_token"]);
+    let attempt = axios.post(BASE_URL + url,
+        {
+            Authorization: "Bearer " + localStorage["access_token"],
+        },
+        {
+        headers:{
+            "Authorization": "Bearer " + localStorage["access_token"]
+        }
+    }).then((res)=> { return res; });
+}
+export async function PlayNext()
+{
+    await SendRequest("me/player/next").catch(e => {});
+}
+export async function PausePlayback()
+{
+    let attempt = axios.put(BASE_URL + "me/player/pause",
+        {
+            Authorization: "Bearer " + localStorage["access_token"],
+        },
+        {
+        headers:{
+            "Authorization": "Bearer " + localStorage["access_token"]
+        }
+    }).then((res)=> {
+        console.log(res.status);
+        localStorage["isPlaying"] = false;
+    }).catch(e => {
+        if(e.status == 403){
+            localStorage["isPlaying"] = true;
+            console.log("User has paused playback");
+            axios.put(BASE_URL + "me/player/play",
+                {
+                    Authorization: "Bearer " + localStorage["access_token"],
+                },
+                {
+                headers:{
+                    "Authorization": "Bearer " + localStorage["access_token"]
+                }}).then(()=>{});
+        }
+    });
+}
+export async function PlayPrev()
+{
+    await SendRequest("me/player/previous").catch(e => {});
 }
