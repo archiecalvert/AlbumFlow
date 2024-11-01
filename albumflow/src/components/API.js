@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react"
 import axios from "axios"
 import { m } from "framer-motion";
 
-let DEBUG = false;
+let DEBUG = true;
 let CLIENT_ID = "4dcdaa9525454b5d95a9e39bdcf64a62";
 let REDIRECT_URI = "https://archiecalvert.github.io";
 if(location.hostname == "localhost")
@@ -23,13 +23,13 @@ const BASE_URL = "https://api.spotify.com/v1/";
 //This code is then used to get the access token and the refresh token, where these can be used to request data from the spotify api
 export async function RequestAuthCode()
 {
-    console.log(REDIRECT_URI);
+    //TAKEN FROM THE SPOTIFY API DOCUMENTATION FOR AUTH WITH PKCE
     const generateRandomString = (length) => {
         const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         const values = crypto.getRandomValues(new Uint8Array(length));
         return values.reduce((acc, x) => acc + possible[x % possible.length], "");
     }
-      
+     
     const codeVerifier  = generateRandomString(64);
     const sha256 = async (plain) => {
         const encoder = new TextEncoder()
@@ -54,7 +54,6 @@ export async function RequestAuthCode()
         code_challenge: codeChallenge,
         redirect_uri: REDIRECT_URI,
       }
-      
       authUrl.search = new URLSearchParams(params).toString();
       window.location.href = authUrl.toString();
 }
@@ -63,7 +62,6 @@ export async function GetAccessToken(code)
 {
     //GETS THE LOCALLY STORED DATA FROM THE AUTHORIZE CODE STAGE
     let data = null;
-    localStorage["access_token"] = "";
     let attempt = {};
     //REQUEST TO GET THE ACCESS TOKEN AND REFRESH TOKEN
     attempt = await axios.post(REFRESH_URL, {
@@ -92,12 +90,12 @@ export async function GetAccessToken(code)
     }
     //IF THE ATTEMPT TO GET THE ACCESS TOKEN AND REFRESH TOKEN WAS SUCCESSFUL...
 }
-export async function GetQueueData(access_token)
+export async function GetQueueData()
 {   
     var albumData=[];
     let attempt = await axios.get(BASE_URL + "me/player/queue",{
         headers:{
-            "Authorization": "Bearer " + access_token
+            "Authorization": "Bearer " + localStorage["access_token"]
         },  
     }).then((res)=> {
         let queueData = res.data.queue;
@@ -162,7 +160,6 @@ export async function GetCurrentSong()
 }
 export async function SendRequest(url)
 {
-    console.log(localStorage["access_token"]);
     let attempt = axios.post(BASE_URL + url,
         {
             Authorization: "Bearer " + localStorage["access_token"],
@@ -188,11 +185,10 @@ export async function PausePlayback()
             "Authorization": "Bearer " + localStorage["access_token"]
         }
     }).then((res)=> {
-        console.log(res.status);
-        localStorage["isPlaying"] = false;
+
     }).catch(e => {
         if(e.status == 403){
-            localStorage["isPlaying"] = true;
+
             axios.put(BASE_URL + "me/player/play",
                 {
                     Authorization: "Bearer " + localStorage["access_token"],
@@ -207,4 +203,41 @@ export async function PausePlayback()
 export async function PlayPrev()
 {
     await SendRequest("me/player/previous").catch(e => {});
+}
+export async function GetUserDetails()
+{
+    let data = null;
+    let attempt = await axios.get(BASE_URL + "me",
+        {
+            headers:{
+                "Authorization": "Bearer " + localStorage["access_token"]
+            }
+        }).then((res)=> {
+            console.log(res);
+            data = {
+                name: res.data.display_name,
+                picture_url: res.data.images.length == 0 ? "profilepic.jpg" : res.data.images[0].url,
+                profile_url: res.data.external_urls.spotify,
+            }
+        })
+        return data;
+}
+export async function GetCurrentSongDetails()
+{
+    let song = null;
+    await axios.get(BASE_URL + "me/player",{
+        headers:{
+            "Authorization": "Bearer " + localStorage["access_token"]
+        },
+    }).then((res)=> {
+        song ={
+            name: res.data.item.name,
+            artist: res.data.item.artists[0].name,
+            artworkURL: res.data.item.album.images[0].url,
+            is_playing: res.data.is_playing,
+        }
+    })
+    localStorage["isPlaying"] = song.is_playing;
+    return song;
+
 }

@@ -16,7 +16,7 @@ import {
     ModalFooter
   } from "@nextui-org/react";
   import {RequestAuthCode} from "./API"
-
+/*THIS MODAL IS NO LONGER IN USE. IT WAS USED WHEN THE AUTHENTIFICATION WAS DONE USING CLIENT ID AND SECRET */
 export default function LogInModal({modalState, setModal})
   {
     const [clientIDVal, changeID] = React.useState("");
