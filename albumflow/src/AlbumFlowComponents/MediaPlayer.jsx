@@ -13,14 +13,12 @@ function MediaPlayer()
     //React hooks
     const [QueueData, SetQueueData] = useState([]);
     const [AuthCode, SetAuthCode] = useState(null);
-    const [AccessToken, SetAccessToken] = useState(null);
-    const [RefreshToken, SetRefreshToken] = useState(null);
     const [CurrentSong, SetCurrentSong] = useState(null);
-    const [CurrentItem, SetCurrentItem] = useState(0);
     const [PlaybackState, SetPlaybackState] = useState(false);
     const [windowWidth, SetWindowWidth] = useState(window.innerWidth);
     const [windowHeight, SetWindowHeight] = useState(window.innerHeight);
     const [QueuePosition, SetQueuePosition] = useState(0);
+    const [AlbumSwiper, SetAlbumSwiper] = useState(null);
     let ItemCount = changeItemCount();
 
     //Manages window resizing for elements
@@ -28,7 +26,7 @@ function MediaPlayer()
     //Loads data from API when the page fully loads
     useEffect(() => {
         SetAuthCode(new URLSearchParams(window.location.search).get("code"));
-        GetAccessToken(new URLSearchParams(window.location.search).get("code")).then((response) => {
+        GetAccessToken().then((response) => {
             ReloadData();
         });
         
@@ -51,9 +49,10 @@ function MediaPlayer()
         }
     }
     return(
-        <div className = "absolute top-[15%] bg-transparent w-[100%] min-w-[250px] m-auto flex flex-wrap" id="container">
+        <div className = "absolute top-[10%] bg-transparent w-[100%] min-w-[250px] m-auto flex flex-wrap" id="container">
             <div className="w-[100%] min-w-[250px]" id="container-inner">
-                <Swiper key={CurrentItem} effect={'coverflow'} id="swiper"
+                <Swiper effect={'coverflow'} id="swiper"
+                    
                     cssMode={false}
                     grabCursor={true}
                     centeredSlides={true}
@@ -61,13 +60,13 @@ function MediaPlayer()
                     coverflowEffect={{
                     rotate: 15,
                     stretch: 0,
-                    depth: 270,
+                    depth: 200,
                     modifier: 1,
                     slideShadows: false,
                     }}
                     pagination={false}
                     modules={[EffectCoverflow, Navigation]}
-                    className = "top-[0px] min-w-[250px] h-[100%] overflow-visible">
+                    className = "top-[0px] min-w-[250px] h-[100%] overflow-hidden">
                         
                     {QueueData.map((item, index) =>{
                         //Adds all the items in the queue to the swiper
@@ -92,8 +91,9 @@ function MediaPlayer()
                             </SwiperSlide>
                         );
                     })}
-                    <MediaControls></MediaControls>
+                    <GetSwiperInstance/>
                 </Swiper>
+                <MediaControls/>
             </div>
 
         </div>
@@ -118,7 +118,6 @@ function MediaPlayer()
     }
     function AddToQueue()
     {
-        console.log(QueueData);
         let currentData = QueueData;
         GetQueueData().then((data) => {
             for(let i = 0; i < data.length; i++)
@@ -138,37 +137,43 @@ function MediaPlayer()
             SetQueueData(currentData);
         })
     }
-    function MediaControls(){
+    function GetSwiperInstance()
+    {
         const swiper = useSwiper();
+        SetAlbumSwiper(swiper);
+        return(<></>)
+    }
+    function MediaControls(){
+        const swiper = AlbumSwiper;
         return(
         CurrentSong && CurrentSong.name != null && (windowWidth > windowHeight ?
             //LANDSCAPE MODE MUSIC CONTROLS
-                <div className="mt-[-100px] w-[75%] max-w-[550px] h-[200px] m-auto" id = "media-controls-container">
+                <div className="text-nowrap mt-[-100px] w-[75%] max-w-[550px] h-[200px] m-auto" id = "media-controls-container">
                     <Card className="bg-[#202020] w-[100%] h-[100%] outline-[4px] outline-[#191919]" isBlurred={true}>
-                        <h1 className="text-white flex relative mx-auto top-[20px] text-[20px] max-w-[90%]"><b>{CurrentSong && QueueData[QueuePosition].name}{!CurrentSong && "Loading.."}</b></h1>
-                        <h1 className="text-neutral-500 max-w-[75%] flex relative mx-auto top-[30px]">{CurrentSong && QueueData[QueuePosition].artist}{!CurrentSong && "Loading.."}</h1>
+                        <h1 className="text-truncate text-white flex relative mx-auto top-[20px] text-[20px] max-w-[80%]"><b>{CurrentSong && QueueData[QueuePosition].name}{!CurrentSong && "Loading.."}</b></h1>
+                        <h1 className="text-truncate text-neutral-500 max-w-[75%] flex relative mx-auto top-[30px]">{CurrentSong && QueueData[QueuePosition].artist}{!CurrentSong && "Loading.."}</h1>
                         <Slider className= "w-[90%] h-[10px] top-[50px] relative flex mx-auto" hideThumb size="sm" color="success"></Slider>
                         <div className = "absolute bottom-[20px] w-[100%]">
                             <span className="w-[40%] min-w-[150px] h-[40px] flex relative justify-between m-auto align-center">
-                            <Image radius="none" src = "mediacontrols/light/prev.png" className="w-[30px] relative" onClick={()=>{PlayPrev().then(()=>{swiper.slidePrev(); SetPlaybackState(true); SetQueuePosition(QueuePosition - 1)})}}/>
-                            <Image disableSkeleton radius="none" alt="mediacontrols/light/pause.png" src = {PlaybackState==true ? "mediacontrols/light/pause.png" : "mediacontrols/light/play.png"} className="w-[40px] mt-[-2px]" onClick={()=>{PausePlayback().then(()=>{SetPlaybackState(!PlaybackState); GetCurrentlyPlayingSong();})}} />
-                            <Image radius = "none" src = "mediacontrols/light/skip.png" id="skip" className="w-[30px] relative" onClick={()=>{console.log(PlayNext().then(()=>{swiper.slideNext(); SetPlaybackState(true); SetQueuePosition(QueuePosition + 1); AddToQueue()}))}}/>
+                            <Image radius="none" src = "/albumflow/mediacontrols/light/prev.png" className="w-[30px] relative" onClick={()=>{PlayPrev().then(()=>{swiper.slidePrev(); SetPlaybackState(true); SetQueuePosition(QueuePosition - 1)})}}/>
+                            <Image disableSkeleton radius="none" alt="/albumflow/mediacontrols/light/pause.png" src = {PlaybackState==true ? "/albumflow/mediacontrols/light/pause.png" : "/albumflow/mediacontrols/light/play.png"} className="w-[40px] mt-[-2px]" onClick={()=>{PausePlayback().then(()=>{SetPlaybackState(!PlaybackState); GetCurrentlyPlayingSong();})}} />
+                            <Image radius = "none" src = "/albumflow/mediacontrols/light/skip.png" id="skip" className="w-[30px] relative" onClick={()=>{console.log(PlayNext().then(()=>{swiper.slideNext(); SetPlaybackState(true); SetQueuePosition(QueuePosition + 1); AddToQueue()}))}}/>
                             </span>
                         </div>
                     </Card>
                     
                 </div>
             //PORTRAIT MODE MUSIC CONTROLS
-            :<div className= "mt-[-75px] w-[75%] max-w-[550px] h-[165px] m-auto" id = "media-controls-container">
+            :<div className= "text-nowrap mt-[-75px] w-[75%] max-w-[550px] h-[165px] m-auto" id = "media-controls-container">
             <Card className="bg-[#202020] w-[100%] h-[100%] outline-[4px] outline-[#191919]" isBlurred={true}>
-                <h1 className="text-white flex relative mx-auto text-center top-[15px] text-[20px] max-w-[90%]"><b>{CurrentSong && QueueData[QueuePosition].name}{!CurrentSong && "Loading.."}</b></h1>
-                <h1 className="text-neutral-500 max-w-[75%] flex relative mx-auto top-[20px]">{CurrentSong && QueueData[QueuePosition].artist}{!CurrentSong && "Loading.."}</h1>
+                <h1 className="text-truncate overflow-hidden text-white flex relative mx-auto text-center top-[15px] text-[20px] max-w-[80%]"><b>{CurrentSong && QueueData[QueuePosition].name}{!CurrentSong && "Loading.."}</b></h1>
+                <h1 className="text-truncate overflow-hidden text-neutral-500 max-w-[75%] flex relative mx-auto top-[20px]">{CurrentSong && QueueData[QueuePosition].artist}{!CurrentSong && "Loading.."}</h1>
                 <Slider className= "w-[90%] h-[10px] top-[27px] relative flex mx-auto" hideThumb size="sm" color="success"></Slider>
                 <div className = "absolute bottom-[15px] w-[100%]">
                     <span className="w-[40%] min-w-[150px] h-[40px] flex relative justify-between m-auto align-center">
-                    <Image radius="none" src = "mediacontrols/light/prev.png" className="w-[25px] mt-[5px] relative" onClick={()=>{PlayPrev().then(()=>{swiper.slidePrev(); SetPlaybackState(true); SetQueuePosition(QueuePosition - 1)})}}/>
-                    <Image disableSkeleton radius="none" alt="mediacontrols/light/pause.png" src = {PlaybackState==true ? "mediacontrols/light/pause.png" : "mediacontrols/light/play.png"} className="w-[35px]" onClick={()=>{PausePlayback().then(()=>{GetCurrentlyPlayingSong(); SetPlaybackState(!PlaybackState)})}} />
-                    <Image radius = "none" src = "mediacontrols/light/skip.png" id="skip" className="w-[25px] mt-[5px] relative" onClick={()=>{PlayPrev().then(()=>{swiper.slidePrev(); SetPlaybackState(true); SetQueuePosition(QueuePosition + 1)})}}/>
+                    <Image radius="none" src = "/albumflow/mediacontrols/light/prev.png" className="w-[25px] mt-[5px] relative" onClick={()=>{PlayPrev().then(()=>{swiper.slidePrev(); SetPlaybackState(true); SetQueuePosition(QueuePosition - 1);AddToQueue()})}}/>
+                    <Image disableSkeleton radius="none" alt="/albumflow/mediacontrols/light/pause.png" src = {PlaybackState==true ? "/albumflow/mediacontrols/light/pause.png" : "/albumflow/mediacontrols/light/play.png"} className="w-[35px]" onClick={()=>{PausePlayback().then(()=>{GetCurrentlyPlayingSong(); SetPlaybackState(!PlaybackState); AddToQueue()})}} />
+                    <Image radius = "none" src = "/albumflow/mediacontrols/light/skip.png" id="skip" className="w-[25px] mt-[5px] relative" onClick={()=>{PlayNext().then(()=>{swiper.slideNext(); SetPlaybackState(true); SetQueuePosition(QueuePosition + 1); AddToQueue()})}}/>
                     </span>
                 </div>
             </Card>

@@ -6,8 +6,7 @@ import {
     Button,
     Image,
   } from "@nextui-org/react";
-import LogInModal from "../LogInModal"
-import {RequestAuthCode, GetUserDetails} from "../API"
+import {RequestAuthCode, GetUserDetails} from "./API"
   export default function Header()
   {
     const[modalState, toggleModal] = useState(false);
@@ -31,9 +30,9 @@ import {RequestAuthCode, GetUserDetails} from "../API"
 
     return(
         <Navbar isBlurred className = "bg-[#121212] fixed top-0">
-            <a href="/"><NavbarBrand className="flex space-x-4">
-                <img src="./logo.png" className = "w-12 h-12"></img>
-                <h1 className="text-white text-[20px] font-semibold">AlbumFlow</h1>
+            <a href="/albumflow"><NavbarBrand className="flex space-x-4">
+                <img src="/albumflow/logo.png" className = "w-12 h-12"></img>
+                {windowWidth>400 && <h1 className="text-white text-[20px] font-semibold">AlbumFlow</h1>}
             </NavbarBrand></a>
             <NavbarItem className="">
                 {!new URLSearchParams(window.location.search).get("code") ? 

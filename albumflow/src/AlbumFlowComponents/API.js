@@ -2,12 +2,12 @@ import React, {useState, useEffect} from "react"
 import axios from "axios"
 import { m } from "framer-motion";
 
-let DEBUG = true;
+let DEBUG = false;
 let CLIENT_ID = "4dcdaa9525454b5d95a9e39bdcf64a62";
-let REDIRECT_URI = "https://archiecalvert.github.io";
+let REDIRECT_URI = "https://archiecalvert.github.io/albumflow";
 if(location.hostname == "localhost")
 {
-    REDIRECT_URI = "http://localhost:5173";
+    REDIRECT_URI = "http://localhost:5173/albumflow";
 }
 let SCOPE = "user-modify-playback-state user-read-playback-state user-read-currently-playing";
 //USED TO GET TOKENS FROM THE API
@@ -58,7 +58,7 @@ export async function RequestAuthCode()
       window.location.href = authUrl.toString();
 }
 
-export async function GetAccessToken(code)
+export async function GetAccessToken()
 {
     //GETS THE LOCALLY STORED DATA FROM THE AUTHORIZE CODE STAGE
     let data = null;
@@ -68,7 +68,7 @@ export async function GetAccessToken(code)
         //BODY/PAYLOAD OF THE REQUEST
         client_id: CLIENT_ID,
         grant_type: "authorization_code",
-        code: code,
+        code: new URLSearchParams(window.location.search).get("code"),
         redirect_uri: REDIRECT_URI,
         code_verifier: localStorage["code_verifier"]
     },
@@ -135,7 +135,11 @@ export async function GetQueueData()
         localStorage["queueData"] = JSON.stringify(albumData);
         return albumData;
     }).catch(e => {
-        if(!DEBUG) RequestAuthCode();
+
+        if(e.status == 401)
+        {
+            GetAccessToken();
+        }
         
     });
     return albumData;
@@ -216,7 +220,7 @@ export async function GetUserDetails()
             console.log(res);
             data = {
                 name: res.data.display_name,
-                picture_url: res.data.images.length == 0 ? "profilepic.jpg" : res.data.images[0].url,
+                picture_url: res.data.images.length == 0 ? "/albumflow/profilepic.jpg" : res.data.images[0].url,
                 profile_url: res.data.external_urls.spotify,
             }
         })
