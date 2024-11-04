@@ -6,9 +6,9 @@ function Header()
     const [windowHeight, setWinHeight] = useState(window.innerHeight);
     window.addEventListener("resize", () => {setWinWidth(window.innerWidth); setWinHeight(window.innerHeight);});
     return(
-        <Navbar className = "bg-transparent justify-center flex">
+        <Navbar position="static" className = "bg-transparent justify-center flex">
             <NavbarBrand>
-                <Image isBlurred radius = "full" className = "outline outline-white outline-1 w-10 mr-[10px]" src="https://avatars.githubusercontent.com/u/143741961?v=4" alt="/albumflow/profilepic.jpg" />
+                <Image alt="/main/iconlarge.png" isBlurred radius = "full" className = "outline outline-white outline-1 w-10 mr-[15px]" src="/main/iconlarge.png"/>
                 <h1 className="font-semibold text-[20px] text-white">Archie Calvert</h1>
             </NavbarBrand>
             {windowWidth > 450 && <NavbarItem className="mr-5">
@@ -18,7 +18,7 @@ function Header()
                     </span>
             </NavbarItem>}
             <NavbarItem>
-                <Dropdown className="bg-[#202020]">
+                <Dropdown className="bg-[#202020] mr-[15px]">
                     <DropdownTrigger>
                         <Button className="bg-white text-black font-semibold">Projects</Button>
                     </DropdownTrigger>
@@ -26,9 +26,41 @@ function Header()
                         <DropdownItem color="" className="hover:bg-[#505050]">
                             <a href="/albumflow">
                             <span className="flex items-center">
-                                <img src = "/albumflow/logo.png" className = "w-7 mr-[10px]"/>
+                                <img src = "/albumflow/logo.png" className = "w-7 h-7 mr-[10px]"/>
                                 <h1 className="font-semibold text-[15px]">AlbumFlow</h1>
                             </span></a>
+                        </DropdownItem>
+                        <DropdownItem color="" className="hover:bg-[#505050]">
+                            <a href="https://github.com/archiecalvert/Game-Creation-Toolkit">
+                                <span className="flex items-center h-7">
+                                    <img src = "/main/github.png" className = "w-7 h-7 mr-[10px] p-[2px]"/>
+                                    <h1 className = "font-semibold text-[15px]">Game Creation Toolkit</h1>
+                                </span>
+                            </a>
+                        </DropdownItem>
+                        <DropdownItem color="" className="hover:bg-[#505050]">
+                            <a href="https://github.com/archiecalvert/Smart-Mirror">
+                                <span className="flex items-center h-7">
+                                <img src = "/main/github.png" className = "w-7 h-7 mr-[10px] p-[2px]"/>
+                                <h1 className = "font-semibold text-[15px]">Smart Mirror</h1>
+                                </span>
+                            </a>
+                        </DropdownItem>
+                        <DropdownItem color="" className="hover:bg-[#505050]">
+                            <a href="https://github.com/archiecalvert/DungeonGame">
+                                <span className="flex items-center h-7">
+                                <img src = "/main/github.png" className = "w-7 h-7 mr-[10px] p-[2px]"/>
+                                <h1 className = "font-semibold text-[15px]">Dungeon Game</h1>
+                                </span>
+                            </a>
+                        </DropdownItem>
+                        <DropdownItem color="" className="hover:bg-[#505050]">
+                            <a href="https://github.com/archiecalvert/2D-Platformer">
+                                <span className="flex items-center h-7">
+                                <img src = "/main/github.png" className = "w-7 h-7 mr-[10px] p-[2px]"/>
+                                <h1 className = "font-semibold text-[15px]">2D Platformer Demo</h1>
+                                </span>
+                            </a>
                         </DropdownItem>
                     </DropdownMenu>
                 </Dropdown>

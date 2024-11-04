@@ -4,10 +4,14 @@ import { m } from "framer-motion";
 
 let DEBUG = false;
 let CLIENT_ID = "4dcdaa9525454b5d95a9e39bdcf64a62";
-let REDIRECT_URI = "https://archiecalvert.github.io/albumflow";
+let REDIRECT_URI = "https://archiecalvert.netlify.app/albumflow";
 if(location.hostname == "localhost")
 {
     REDIRECT_URI = "http://localhost:5173/albumflow";
+}
+else if(location.hostname == "github.io")
+{
+    REDIRECT_URI = "https://archiecalvert.github.io/albumflow"
 }
 let SCOPE = "user-modify-playback-state user-read-playback-state user-read-currently-playing";
 //USED TO GET TOKENS FROM THE API

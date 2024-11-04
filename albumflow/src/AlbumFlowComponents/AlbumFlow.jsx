@@ -3,10 +3,11 @@ import Header from "./Header"
 import Footer from "./Footer"
 import MediaPlayer from "./MediaPlayer"
 import DashboardHome from "./DashboardHome"
-const code = new URLSearchParams(window.location.search).get("code");
 
 function AlbumFlow()
 {
+    document.title="AlbumFlow";
+    const code = new URLSearchParams(window.location.search).get("code");
     const [windowWidth, SetWindowWidth] = useState(window.innerWidth);
     const [windowHeight, SetWindowHeight] = useState(window.innerHeight);
     window.addEventListener("resize", ()=>{SetWindowWidth(window.innerWidth); SetWindowHeight(window.innerHeight);});

@@ -22,7 +22,7 @@ export default function Footer()
         </NavbarBrand>
         <NavbarItem>
             <span className="space-x-7 text-bold list-none flex m-auto">
-                <a href = "https://archiecalvert.github.io/" target="_blank"><img src="albumflow/website.png" className="w-6"></img></a>
+                <a href = {window.location.hostname == "netlify.app" ? "https://archiecalvert.netlify.app":"https://archiecalvert.github.io/"} target="_blank"><img src="albumflow/website.png" className="w-6"></img></a>
                 <a href = "https://github.com/archiecalvert" target="_blank"><img src = "albumflow/github.png" className="w-6"></img></a>
                 <a href = "https://linkedin.com/in/archiecalvert" target="_blank"><img src = "albumflow/linkedin.png" className="w-6"></img></a>
             </span>

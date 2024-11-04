@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 html{
-    overflow: hidden;
+    overflow-y: visible;
+    overflow-x: hidden;
     height: 100%;
     background-color: #0C0C0C;
 }
@@ -11,6 +12,8 @@ body{
     background-color: #0C0C0C;
     width: 100%;
     overflow-x: hidden;
+    overflow-y: visible;
     height: 100%;
     color: white;
+    font-family: "Inter", sans-serif;
 }
