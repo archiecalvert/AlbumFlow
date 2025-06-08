@@ -1,0 +1,68 @@
+/*
+
+Redirects the page to the spotify login page which contains all the relevant data
+
+Returns: (these are contained within the success URL)
+    Authorisation Code: code produced by spotify
+    State: state provided by the server
+
+*/
+export async function LogIn()
+{
+    window.location.href = "http://localhost:4000/login"
+}
+
+/*
+
+Using the Authorisation Code, this gets two tokens to be used on the API
+
+Parameters:
+    auth_code: the authorisation code provided by the "LogIn" function
+    state: the state provided by the "LogIn" function
+
+*/
+export async function GetTokens(auth_code, state)
+{
+    let data = null;
+    await fetch("http://localhost:4000/authenticate", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            auth_code: auth_code,
+            state: state 
+        })
+    }).then(async (res)=>{
+        data = await res;
+    })
+    return data.json();
+}
+
+/*
+
+Creates a new access token from the refresh token.
+
+Parameters:
+    refresh_token: the currently active refresh token
+
+Returns:
+    access: new access token
+    refresh: new refresh token
+*/
+export async function RefreshToken(refresh_token)
+{
+    let data = null;
+    await fetch("http://localhost:4000/refresh", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            token: refresh_token
+        })
+    }).then(async (res)=>{
+        data = await res;
+    })
+    return data.json();
+}
