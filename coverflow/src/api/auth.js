@@ -1,4 +1,5 @@
-const API_URL = "http://192.168.1.112:4000"
+
+const API_URL = "http://16.170.213.100:4001"
 /*
 
 Redirects the page to the spotify login page which contains all the relevant data

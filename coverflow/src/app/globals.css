@@ -12,6 +12,7 @@
   --font-sans: var(--font-inter-sans);
   --font-mono: var(--font-inter-mono);
   --breakpoint-desktop: 350px;
+  --breakpoint-medium700: 700px;
 }
 
 @media (prefers-color-scheme: dark) {

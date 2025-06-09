@@ -271,7 +271,7 @@ export default function Page() {
                     }
                 </Swiper>
                 {queueData.length != 0 && (
-                    <div className="grid max-cols-1 space-y-3 mt-[20px] h-full w-[40%] mx-[50%] -translate-x-1/2">
+                    <div className="grid max-cols-1 space-y-3 mt-[20px] h-full w-[40%] max-medium700:w-[80%] mx-[50%] -translate-x-1/2">
                         <>
                             <h1 className="text-nowrap overflow-x-hidden text-[30px]">{currentTitle}</h1>
                             <h1 className="text-nowrap overflow-x-hidden text-[15px]">{currentArtist}</h1>
@@ -284,7 +284,7 @@ export default function Page() {
                             </div>
                             <span className="mt-[15px] grid grid-rows-1 grid-cols-3 items-center w-full">
                                 <img
-                                    className="hover:cursor-pointer dark:invert justify-self-end max-w-[30px] max-h-[30px]"
+                                    className="max-medium700:mx-5 hover:cursor-pointer dark:invert justify-self-end max-w-[30px] max-medium700:max-w-[25px] max-h-[30px]"
                                     src="/backward-icon.png"
                                     onClick={() => {
                                         PlayPreviousSong(localStorage["access"]).then((e3) => {
@@ -300,7 +300,7 @@ export default function Page() {
                                 ></img>
                                 {paused ? (
                                     <img
-                                        className="hover:cursor-pointer justify-self-center invert dark:invert-0 max-w-[40px] max-h-[40px]"
+                                        className="max-medium700:max-w-[50px] hover:cursor-pointer justify-self-center invert dark:invert-0 max-w-[40px] max-h-[40px]"
                                         src="/pause.png"
                                         onClick={() => {
                                             SetIsPaused(!paused);
@@ -309,7 +309,7 @@ export default function Page() {
                                     ></img>
                                 ) : (
                                     <img
-                                        className="hover:cursor-pointer justify-self-center invert dark:invert-0 max-w-[40px] max-h-[40px]"
+                                        className="max-medium700:max-w-[50px] hover:cursor-pointer justify-self-center invert dark:invert-0 max-w-[40px] max-h-[40px]"
                                         src="/play.png"
                                         onClick={() => {
                                             SetIsPaused(!paused);
@@ -319,7 +319,7 @@ export default function Page() {
                                     ></img>
                                 )}
                                 <img
-                                    className="hover:cursor-pointer dark:invert max-w-[30px] max-h-[30px]"
+                                    className="max-medium700:mx-5 max-medium700:max-w-[25px] hover:cursor-pointer dark:invert max-w-[30px] max-h-[30px]"
                                     src="/forward-icon.png"
                                     onClick={() => {
                                         PlayNextSong(localStorage["access"]).then((e2) => {
