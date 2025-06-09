@@ -37,6 +37,8 @@ export default function Home() {
     const [windowWidth, SetWindowWidth] = useState(window.innerWidth);
     const [windowHeight, SetWindowHeight] = useState(window.innerHeight);
 
+    if (typeof window !== "undefined") document.title = "Home | AlbumFlow";
+
     function calculateArtCount(){
         if(windowWidth < 700) SetArtCount(2);
         else if(windowWidth < 900) SetArtCount(3);

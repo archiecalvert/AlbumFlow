@@ -33,6 +33,8 @@ export default function Page() {
     const [APILimit, SetAPILimit] = useState(20)
     const [correctionDelay, SetCorrectionDelay] = useState(3)
 
+    if (typeof window !== "undefined") document.title = "Player | AlbumFlow";
+
     async function UpdateState() {
         const responses = Promise.allSettled([GetPlaybackState(localStorage["access"])]).then(async (vals) => {
             try {
