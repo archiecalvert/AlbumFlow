@@ -225,7 +225,8 @@ export default function Page() {
 
     return (
         <>
-            <motion.div className="text-center justify-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{}}>
+            <motion.div style={{height:"calc(100vh - 50px)"}} className="flex items-center overflow-hidden text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{}}>
+                <div className="min-w-0">
                 <Swiper
                     effect={"coverflow"}
                     id="swiper"
@@ -243,7 +244,7 @@ export default function Page() {
                     }}
                     pagination={false}
                     modules={[EffectCoverflow, Navigation]}
-                    className="top-[0px] min-w-[250px] h-[100%] overflow-hidden"
+                    className="min-w-[250px] overflow-hidden"
                     onSwiper={(e) => {
                         SetAlbumSwiper(e);
                         setCurrentPos(e.activeIndex);
@@ -273,18 +274,18 @@ export default function Page() {
                     }
                 </Swiper>
                 {queueData.length != 0 && (
-                    <div className="grid max-cols-1 space-y-3 mt-[20px] h-full w-[40%] max-medium700:w-[80%] mx-[50%] -translate-x-1/2">
+                    <div className="mb-[50px] grid space-y-5 max-cols-1 w-[40%] max-medium700:w-[80%] mx-[50%] -translate-x-1/2">
                         <>
                             <h1 className="text-nowrap overflow-x-hidden text-[30px]">{currentTitle}</h1>
                             <h1 className="text-nowrap overflow-x-hidden text-[15px]">{currentArtist}</h1>
-                            <div className="bg-black dark:bg-gray-500 h-[5px] w-full mt-[10px] rounded-full overflow-hidden">
+                            <div className="bg-black dark:bg-gray-500 h-[5px] w-full rounded-full overflow-hidden">
                                 <div style={{ width: `calc(${(100 * playbackState[0]) / playbackState[1]}%)` }} className="bg-gray-500 dark:bg-white h-full"></div>
                             </div>
                             <div className="text-[#808080] flex justify-between">
                                 <h1>{ConvertMilliToTime(playbackState[0])}</h1>
                                 <h1>{ConvertMilliToTime(playbackState[1])}</h1>
                             </div>
-                            <span className="mt-[15px] grid grid-rows-1 grid-cols-3 items-center w-full">
+                            <span className="grid grid-rows-1 grid-cols-3 items-center w-full">
                                 <img
                                     className="max-medium700:mx-5 hover:cursor-pointer dark:invert justify-self-end max-w-[30px] max-medium700:max-w-[25px] max-h-[30px]"
                                     src="/backward-icon.png"
@@ -340,6 +341,7 @@ export default function Page() {
                         </>
                     </div>
                 )}
+                </div>
             </motion.div>
             {windowWidth >= 700 && <PlaylistMenu data={playlistData} SetReloadFlag={SetReloadPlayer} SetNewData={SetTempQueueData}></PlaylistMenu>}
         </>
