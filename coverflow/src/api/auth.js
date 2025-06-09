@@ -1,3 +1,4 @@
+const API_URL = "http://192.168.1.112:4000"
 /*
 
 Redirects the page to the spotify login page which contains all the relevant data
@@ -9,7 +10,7 @@ Returns: (these are contained within the success URL)
 */
 export async function LogIn()
 {
-    window.location.href = "http://localhost:4000/login"
+    window.location.href = API_URL + "/login"
 }
 
 /*
@@ -24,7 +25,7 @@ Parameters:
 export async function GetTokens(authCode, state)
 {
     let data = null;
-    await fetch("http://localhost:4000/authenticate", {
+    await fetch(API_URL + "/authenticate", {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
@@ -53,7 +54,7 @@ Returns:
 export async function RefreshToken(refreshToken)
 {
     let data = null;
-    await fetch("http://localhost:4000/refresh", {
+    await fetch(API_URL + "/refresh", {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',

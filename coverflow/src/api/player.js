@@ -131,6 +131,7 @@ export async function PlayNextSong(accessToken) {
         }
     }).then(async (res) => {
         data = await res.status == 200
+        console.log(await res.status)
     });
     return data;
 }

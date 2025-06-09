@@ -1,5 +1,5 @@
 "use client";
-import { RefreshToken } from "@/api/auth";
+import { LogIn, RefreshToken } from "@/api/auth";
 import { useEffect, useState, useRef } from "react";
 import { motion } from "motion/react";
 
@@ -10,14 +10,10 @@ import "swiper/css/effect-coverflow";
 import { GetPlaybackState, GetQueue, GetUserSavedAlbums, PlayNextSong, PlayPreviousSong, TogglePlayback } from "@/api/player";
 import PlaylistMenu from "@/components/playlistmenu";
 
-// URL for where the backend auth code is generated
-const AUTHURL = "http://localhost:4000/login";
-
 export default function Page() {
     const [albumSwiper, SetAlbumSwiper] = useState(null);
     const albumRef = useRef(albumSwiper);
     const [queueData, SetQueueData] = useState([]);
-    const queueRef = useRef(queueData);
     const [windowWidth, SetWindowWidth] = useState(window.innerWidth);
     const [windowHeight, SetWindowHeight] = useState(window.innerHeight);
     const [artCount, SetArtCount] = useState(null);
@@ -33,6 +29,9 @@ export default function Page() {
     const [playbackState, SetPlaybackState] = useState([]);
     const [reloadPlayer, SetReloadPlayer] = useState(false);
     const [tempQueueData, SetTempQueueData] = useState(null);
+    const [APIDelay, SetAPIDelay] = useState(20) // How many updates until the API is called
+    const [APILimit, SetAPILimit] = useState(20)
+    const [correctionDelay, SetCorrectionDelay] = useState(3)
 
     async function UpdateState() {
         const responses = Promise.allSettled([GetPlaybackState(localStorage["access"])]).then(async (vals) => {
@@ -40,10 +39,17 @@ export default function Page() {
                 const temp = await vals[0].value.is_playing;
                 SetIsPaused(!temp);
                 SetPlaybackState([await vals[0].value.progress_ms, await vals[0].value.item.duration_ms]);
-                if (temp && (await vals[0].value.item.duration_ms) - (await vals[0].value.progress_ms) < 2000) {
-                    albumRef.current.slideNext();
-                }
 
+            } catch {
+                (e) => console.log(e);
+            }
+        });
+    }
+
+    async function CheckIsCorrectPosition()
+    {
+        const responses = Promise.allSettled([GetPlaybackState(localStorage["access"])]).then(async (vals) => {
+            try {
                 if (vals[0].value.item.name != queueData[albumSwiper.activeIndex].name) {
                     let inQueue = false;
                     for (let i = 0; i < queueData.length; i++) {
@@ -64,8 +70,24 @@ export default function Page() {
     */
     useEffect(() => {
         const i1 = setInterval(() => {
-            UpdateState();
-        }, 1000); //after every second
+            SetAPIDelay(c => c+1)
+            if(APIDelay >= APILimit) 
+            {
+                
+                if(correctionDelay == 3)
+                {
+                    SetCorrectionDelay(0)
+                    CheckIsCorrectPosition();
+                }
+                SetCorrectionDelay(c=>c+1)
+                SetAPIDelay(0)
+                UpdateState();
+            }
+            else{
+                if(!paused) SetPlaybackState(c => [c[0] + 100, c[1]])
+            }
+
+        }, 100); //after every second
 
         const i2 = setInterval(
             () => {
@@ -82,7 +104,7 @@ export default function Page() {
             clearInterval(i1);
             clearInterval(i2);
         };
-    }, [queueData, albumSwiper]);
+    }, [queueData, albumSwiper, playbackState, paused, APIDelay, APILimit]);
 
     useEffect(() => {
         if (albumSwiper == null) return;
@@ -164,7 +186,7 @@ export default function Page() {
             SetWindowHeight(window.innerHeight);
         });
         if (localStorage["access"] == undefined || localStorage["refresh"] == undefined) {
-            window.location.href = AUTHURL;
+            LogIn()
         }
         async function GetData() {
             // Refreshes the users access token when the page is refreshed
@@ -173,7 +195,7 @@ export default function Page() {
                 localStorage["access"] = response1.access;
                 localStorage["refresh"] = response1.refresh;
             } else {
-                window.location.href = AUTHURL;
+                LogIn()
             }
 
             // Additional checks to see if the API call was successful
@@ -230,9 +252,6 @@ export default function Page() {
                         if (e.activeIndex > currentPos) action = "next";
                         else action = "prev";
 
-                        if (playbackState[1] - playbackState[0] < 2000) {
-                            setCurrentPos(currentPos + 1);
-                        }
 
                         SetCurrentTitle(queueData[i].name);
                         SetCurrentArtist(queueData[i].artist);
@@ -273,8 +292,8 @@ export default function Page() {
                                                 albumSwiper.slidePrev();
                                                 SetIsPaused(false);
                                                 setCurrentPos(currentPos - 1);
-                                            } else {
-                                                e.slideNext(0);
+                                                SetPlaybackState(c=>[0, playbackState[1]])
+
                                             }
                                         });
                                     }}
@@ -295,6 +314,7 @@ export default function Page() {
                                         onClick={() => {
                                             SetIsPaused(!paused);
                                             TogglePlayback(localStorage["access"]).then((v) => SetIsPaused(v));
+                                            
                                         }}
                                     ></img>
                                 )}
@@ -308,8 +328,8 @@ export default function Page() {
                                                 albumSwiper.slideNext();
                                                 SetIsPaused(false);
                                                 setCurrentPos(currentPos + 1);
-                                            } else {
-                                                e.slidePrev(0);
+                                                SetPlaybackState(c=>[0, playbackState[1]])
+
                                             }
                                         });
                                     }}
