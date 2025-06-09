@@ -142,7 +142,6 @@ loginRouter.post("/refresh", async (req, res) => {
                     expires_in :jdata.expires_in,
                     scope :jdata.scope,
                 }
-                console.log(jdata);
                 return res.status(200).json(data);
             }
         }
