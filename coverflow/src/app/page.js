@@ -34,8 +34,8 @@ const DummyArt = [
 export default function Home() {
     
     const [artCount, SetArtCount] = useState(null);
-    const [windowWidth, SetWindowWidth] = useState(window.innerWidth);
-    const [windowHeight, SetWindowHeight] = useState(window.innerHeight);
+    const [windowWidth, SetWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth :1920);
+    const [windowHeight, SetWindowHeight] = useState(typeof window !== "undefined" ?window.innerHeight:1080);
 
     if (typeof window !== "undefined") document.title = "Home | AlbumFlow";
 

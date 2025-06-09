@@ -14,8 +14,8 @@ export default function Page() {
     const [albumSwiper, SetAlbumSwiper] = useState(null);
     const albumRef = useRef(albumSwiper);
     const [queueData, SetQueueData] = useState([]);
-    const [windowWidth, SetWindowWidth] = useState(window.innerWidth);
-    const [windowHeight, SetWindowHeight] = useState(window.innerHeight);
+    const [windowWidth, SetWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1920);
+    const [windowHeight, SetWindowHeight] = useState(typeof window !== "undefined" ? window.innerHeight: 1080);
     const [artCount, SetArtCount] = useState(null);
     const [playlistData, SetPlaylistData] = useState([]);
 
