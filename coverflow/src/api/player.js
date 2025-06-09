@@ -3,7 +3,7 @@
 Gets the users queue data from the spotify API
 
 Parameters:
-    access_token: the currently active access token
+    accessToken: the currently active access token
 Returns:
     data array: contains an array of data with
                 - artist name
@@ -11,9 +11,9 @@ Returns:
                 - artwork url
 
 */
-export async function GetQueue(access_token) {
+export async function GetQueue(accessToken) {
 
-    if (access_token == null || access_token == undefined) {
+    if (accessToken == null || accessToken == undefined) {
         console.log("No token provided");
         return;
     }
@@ -22,7 +22,7 @@ export async function GetQueue(access_token) {
     await fetch("https://api.spotify.com/v1/me/player/queue", {
         method: "get",
         headers: {
-            "Authorization": "Bearer " + access_token
+            "Authorization": "Bearer " + accessToken
         }
     }).then(async (response) => {
         let res = await response.json()
@@ -55,17 +55,17 @@ export async function GetQueue(access_token) {
 Gets the users queue playlists from the spotify API
 
 Parameters:
-    access_token: the currently active access token
+    accessToken: the currently active access token
 Returns:
     data array: contains an array of data with the relevant data from the API
 
 */
-export async function GetUserSavedAlbums(access_token) {
+export async function GetUserSavedAlbums(accessToken) {
     let data = null
     await fetch("https://api.spotify.com/v1/me/playlists", {
         method: "get",
         headers: {
-            "Authorization": "Bearer " + access_token
+            "Authorization": "Bearer " + accessToken
         }
     }).then(async (res) => {
         data = await res.json()
@@ -78,17 +78,17 @@ export async function GetUserSavedAlbums(access_token) {
 Toggles the pause/unpause on the users device
 
 Parameters:
-    access_token: the currently active access token
+    accessToken: the currently active access token
 Returns:
     boolean: whether the player is paused
 
 */
-export async function TogglePlayback(access_token) {
+export async function TogglePlayback(accessToken) {
     let data = null;
     await fetch("https://api.spotify.com/v1/me/player", {
         method: "get",
         headers: {
-            "Authorization": "Bearer " + access_token
+            "Authorization": "Bearer " + accessToken
         }
     }).then(async (res) => {
         let data1 = await res.json();
@@ -102,7 +102,7 @@ export async function TogglePlayback(access_token) {
         await fetch(url, {
             method: "put",
             headers: {
-                "Authorization": "Bearer " + access_token
+                "Authorization": "Bearer " + accessToken
             }
         }).then(async (res2) => {
             if (await res2.status == 200) {
@@ -117,17 +117,17 @@ export async function TogglePlayback(access_token) {
 /*
 
 Parameters:
-    access_token: the currently active access token
+    accessToken: the currently active access token
 Returns:
     boolean: whether the action was successful
 
 */
-export async function PlayNextSong(access_token) {
+export async function PlayNextSong(accessToken) {
     let data = null;
     await fetch("https://api.spotify.com/v1/me/player/next", {
         method: "post",
         headers: {
-            "Authorization": "Bearer " + access_token
+            "Authorization": "Bearer " + accessToken
         }
     }).then(async (res) => {
         data = await res.status == 200
@@ -138,17 +138,17 @@ export async function PlayNextSong(access_token) {
 /*
 
 Parameters:
-    access_token: the currently active access token
+    accessToken: the currently active access token
 Returns:
     boolean: whether the action was successful
 
 */
-export async function PlayPreviousSong(access_token) {
+export async function PlayPreviousSong(accessToken) {
     let data = null;
     await fetch("https://api.spotify.com/v1/me/player/previous", {
         method: "post",
         headers: {
-            "Authorization": "Bearer " + access_token
+            "Authorization": "Bearer " + accessToken
         }
     }).then(async (res) => {
         data = await res.status == 200
@@ -161,12 +161,12 @@ export async function PlayPreviousSong(access_token) {
 Gets the state of the player
 
 */
-export async function GetPlaybackState(access_token) {
+export async function GetPlaybackState(accessToken) {
     let data = null;
     await fetch("https://api.spotify.com/v1/me/player", {
         method: "get",
         headers: {
-            "Authorization": "Bearer " + access_token
+            "Authorization": "Bearer " + accessToken
         }
     }).then(async (res) => {
         data = await res.json();
@@ -174,17 +174,40 @@ export async function GetPlaybackState(access_token) {
     return data;
 }
 
-export async function PlayPlaylistOrSong(access_token, uri) {
-    await fetch(url, {
+export async function PlayPlaylistOrSong(accessToken, uri, playlist_id) {
+    let data = []
+    await fetch("https://api.spotify.com/v1/me/player/play", {
         method: "put",
         headers: {
-            "Authorization": "Bearer " + access_token
+            "Authorization": "Bearer " + accessToken
         },
-        body: {}
-    }).then(async (res2) => {
-        if (await res2.status == 200) {
-            data = data1.is_playing;
+        body: JSON.stringify({
+            context_uri: uri
+        })
+    }).then(async (res1) => {
+        if(await res1.status == 204)
+        {
+            await fetch("https://api.spotify.com/v1/playlists/" + playlist_id, {
+                method: "get",
+                headers: {
+                    "Authorization": "Bearer " + accessToken
+                },
+            }).then(async res2 => {
+                let res = await res2.json()
+                // Adds the queue data
+                
+                for (let i = 0; i < res.tracks.items.length; i++) {
+                    data[i] = {
+                        name: res.tracks.items[i].track.name,
+                        artist: res.tracks.items[i].track.artists[0].name,
+                        artwork: res.tracks.items[i].track.album.images[0].url,
+                    }
+                }
+                
+            })
+
         }
 
     })
+    return data;
 }

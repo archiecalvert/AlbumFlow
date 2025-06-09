@@ -17,11 +17,11 @@ export async function LogIn()
 Using the Authorisation Code, this gets two tokens to be used on the API
 
 Parameters:
-    auth_code: the authorisation code provided by the "LogIn" function
+    authCode: the authorisation code provided by the "LogIn" function
     state: the state provided by the "LogIn" function
 
 */
-export async function GetTokens(auth_code, state)
+export async function GetTokens(authCode, state)
 {
     let data = null;
     await fetch("http://localhost:4000/authenticate", {
@@ -30,7 +30,7 @@ export async function GetTokens(auth_code, state)
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            auth_code: auth_code,
+            auth_code: authCode,
             state: state 
         })
     }).then(async (res)=>{
@@ -44,13 +44,13 @@ export async function GetTokens(auth_code, state)
 Creates a new access token from the refresh token.
 
 Parameters:
-    refresh_token: the currently active refresh token
+    refreshToken: the currently active refresh token
 
 Returns:
     access: new access token
     refresh: new refresh token
 */
-export async function RefreshToken(refresh_token)
+export async function RefreshToken(refreshToken)
 {
     let data = null;
     await fetch("http://localhost:4000/refresh", {
@@ -59,7 +59,7 @@ export async function RefreshToken(refresh_token)
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            token: refresh_token
+            token: refreshToken
         })
     }).then(async (res)=>{
         data = await res;
