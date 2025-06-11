@@ -1,8 +1,9 @@
 "use client";
 import { LogIn, RefreshToken } from "@/api/auth";
+import tinycolor from "tinycolor2";
 import { useEffect, useState, useRef } from "react";
 import { motion } from "motion/react";
-
+import { Vibrant } from "node-vibrant/browser";
 import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
 import { EffectCoverflow, Navigation } from "swiper/modules";
 import "swiper/css";
@@ -32,6 +33,7 @@ export default function Page() {
     const [APIDelay, SetAPIDelay] = useState(20) // How many updates until the API is called
     const [APILimit, SetAPILimit] = useState(20)
     const [correctionDelay, SetCorrectionDelay] = useState(3)
+    const [backgroundColours, SetBackgroundColours] = useState([])
 
     if (typeof window !== "undefined") document.title = "Player | AlbumFlow";
 
@@ -89,6 +91,17 @@ export default function Page() {
                 if(!paused) SetPlaybackState(c => [c[0] + 100, c[1]])
             }
 
+            if(albumSwiper == null || queueData[albumSwiper.activeIndex] == undefined || albumSwiper == undefined) return;
+            Vibrant.from(albumSwiper.el.childNodes[0].childNodes[albumSwiper.activeIndex].children[0].src)
+                .getPalette()
+                .then((palette) => {
+                    let data = palette.Vibrant._rgb;
+                    let data2 = palette.LightVibrant._rgb//subtractChannels(data, 50);
+                    let data3 = palette.DarkVibrant._rgb;
+                    SetBackgroundColours([data, data2, data3]);
+                });
+            
+            
         }, 100); //after every second
 
         const i2 = setInterval(
@@ -106,6 +119,7 @@ export default function Page() {
             clearInterval(i1);
             clearInterval(i2);
         };
+        
     }, [queueData, albumSwiper, playbackState, paused, APIDelay, APILimit]);
 
     useEffect(() => {
@@ -221,11 +235,50 @@ export default function Page() {
         }
         GetData();
     }, []);
+    useEffect(()=>{
+        return
+        function subtractChannels(rgbValues, amount)
+        {
+            let d = [];
+            for(let j = 0; j < rgbValues.length; j++)
+            {
+                d[j] = rgbValues[j] - amount < 0 ? 0 : rgbValues[j] - amount;
+            }
+            return d
+        }
+        if(queueData[currentPos] == undefined || albumSwiper == undefined) return;
+        Vibrant.from(albumSwiper.el.childNodes[0].childNodes[albumSwiper.activeIndex].children[0].src)
+            .getPalette()
+            .then((palette) => {
+                let data = palette.Vibrant._rgb;
+                let data2 = palette.LightVibrant._rgb//subtractChannels(data, 50);
+                let data3 = palette.DarkVibrant._rgb;
+                SetBackgroundColours([data, data2, data3]);
+                
+            });
+    }, [currentPos, queueData, albumSwiper])
+
+    function isDarkMode() {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
     if (!isLoaded) return <></>;
 
+    function rgbToHex(value) {
+        if(value == undefined) return "#ffffff"
+        return (
+            '#' +
+            value
+            .map((val) => {
+                const hex = val.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            })
+            .join('')
+        );
+    }
+    
     return (
-        <>
-            <motion.div style={{height:"calc(100vh - 50px)"}} className="flex items-center overflow-hidden text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{}}>
+        <div style = {{background: `${backgroundColours[0] != undefined && `linear-gradient(to bottom, rgba(${backgroundColours[1][0]}, ${backgroundColours[1][1]}, ${backgroundColours[1][2]}, 1), rgba(${backgroundColours[2][0]}, ${backgroundColours[2][1]}, ${backgroundColours[2][2]}, 1))`}`}}>
+            <motion.div style={{ backgroundColor: `${backgroundColours[0] != undefined && `rgba(${backgroundColours[0][0]}, ${backgroundColours[0][1]}, ${backgroundColours[0][2]}, 0.5)`}`, transition: 'background 0.75s ease', height:"calc(100vh)", }} className="transition-colors duration-1000 mt-[-50px] flex items-center overflow-hidden text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{}}>
                 <div className="min-w-0">
                 <Swiper
                     effect={"coverflow"}
@@ -267,7 +320,7 @@ export default function Page() {
                                 if (item.artwork == null) return <></>;
                                 return (
                                     <SwiperSlide key={index}>
-                                        <img className="rounded-lg shadow-lg w-full h-full my-[50px]" src={item.artwork}></img>
+                                        <img className="aspect-square rounded-lg shadow-xl w-full h-full my-[50px]" src={item.artwork}></img>
                                     </SwiperSlide>
                                 );
                             })
@@ -276,18 +329,18 @@ export default function Page() {
                 {queueData.length != 0 && (
                     <div className="mb-[50px] grid space-y-5 max-cols-1 w-[40%] max-medium700:w-[80%] mx-[50%] -translate-x-1/2">
                         <>
-                            <h1 className="text-nowrap overflow-x-hidden text-[30px]">{currentTitle}</h1>
-                            <h1 className="text-nowrap overflow-x-hidden text-[15px]">{currentArtist}</h1>
-                            <div className="bg-black dark:bg-gray-500 h-[5px] w-full rounded-full overflow-hidden">
-                                <div style={{ width: `calc(${(100 * playbackState[0]) / playbackState[1]}%)` }} className="bg-gray-500 dark:bg-white h-full"></div>
+                            <h1 style={{transition: 'color 0.1s ease', color: `${backgroundColours[0] != undefined && backgroundColours[0] != null ? tinycolor.mostReadable(tinycolor(rgbToHex(backgroundColours[1])), ['#000000', '#ffffff']).toHexString() : "rgba(0,0,0,0)"}`}} className="invert text-nowrap overflow-x-hidden text-[30px]">{currentTitle}</h1>
+                            <h1 style={{transition: 'color 0.1s ease', color: `${backgroundColours[0] != undefined && backgroundColours[0] != null ? tinycolor.mostReadable(tinycolor(rgbToHex(backgroundColours[1])), ['#000000', '#ffffff']).toHexString() : "rgba(0,0,0,0)"}`}} className="invert text-nowrap overflow-x-hidden text-[15px]">{currentArtist}</h1>
+                            <div style={{transition: 'background 0.1s ease', backgroundColor: `${backgroundColours[0] != undefined && backgroundColours[0] != null ? tinycolor.mostReadable(tinycolor(rgbToHex(backgroundColours[1])), ['rgba(0,0,0,0.35)', 'rgba(256, 256, 256, 0.35)']).toRgbString() : "rgba(0,0,0,0)"}`}} className="invert h-[5px] w-full rounded-full overflow-hidden">
+                                <div style={{transition: 'background 0.1s ease', backgroundColor: `${backgroundColours[0] != undefined && backgroundColours[0] != null ? tinycolor.mostReadable(tinycolor(rgbToHex(backgroundColours[1])), ['#000000', 'rgba(256, 256, 256, 0.6)']).toRgbString() : "rgba(0,0,0,0)"}`, width: `calc(${(100 * playbackState[0]) / playbackState[1]}%)` }} className="!opacity-[100%] bg-gray-500 dark:bg-white h-full"></div>
                             </div>
-                            <div className="text-[#808080] flex justify-between">
-                                <h1>{ConvertMilliToTime(playbackState[0])}</h1>
-                                <h1>{ConvertMilliToTime(playbackState[1])}</h1>
+                            <div className="invert flex justify-between opacity-[50%]">
+                                <h1 style={{transition: 'color 0.1s ease', color: `${backgroundColours[0] != undefined && backgroundColours[0] != null ? tinycolor.mostReadable(tinycolor(rgbToHex(backgroundColours[1])), ['#000000', '#ffffff']).toHexString() : "rgba(0,0,0,0)"}`}}>{ConvertMilliToTime(playbackState[0])}</h1>
+                                <h1 style={{transition: 'color 0.1s ease', color: `${backgroundColours[0] != undefined && backgroundColours[0] != null ? tinycolor.mostReadable(tinycolor(rgbToHex(backgroundColours[1])), ['#000000', '#ffffff']).toHexString() : "rgba(0,0,0,0)"}`}}>{ConvertMilliToTime(playbackState[1])}</h1>
                             </div>
-                            <span className="grid grid-rows-1 grid-cols-3 items-center w-full">
+                            <span className={`grid grid-rows-1 grid-cols-3 items-center w-full ${(backgroundColours[0] != undefined && backgroundColours[0] != null ? tinycolor.mostReadable(tinycolor(rgbToHex(backgroundColours[1])), ['#000000', '#ffffff']).toHexString() : "rgba(0,0,0,0)") != "#ffffff" ? "invert" : ""}`}>
                                 <img
-                                    className="max-medium700:mx-5 hover:cursor-pointer dark:invert justify-self-end max-w-[30px] max-medium700:max-w-[25px] max-h-[30px]"
+                                    className={`max-medium700:mx-5 hover:cursor-pointer justify-self-end max-w-[30px] max-medium700:max-w-[25px] max-h-[30px]`}
                                     src="/backward-icon.png"
                                     onClick={() => {
                                         PlayPreviousSong(localStorage["access"]).then((e3) => {
@@ -303,7 +356,7 @@ export default function Page() {
                                 ></img>
                                 {paused ? (
                                     <img
-                                        className="max-medium700:max-w-[50px] hover:cursor-pointer justify-self-center invert dark:invert-0 max-w-[40px] max-h-[40px]"
+                                        className="max-medium700:max-w-[50px] hover:cursor-pointer justify-self-center invert max-w-[40px] max-h-[40px]"
                                         src="/pause.png"
                                         onClick={() => {
                                             SetIsPaused(!paused);
@@ -312,7 +365,7 @@ export default function Page() {
                                     ></img>
                                 ) : (
                                     <img
-                                        className="max-medium700:max-w-[50px] hover:cursor-pointer justify-self-center invert dark:invert-0 max-w-[40px] max-h-[40px]"
+                                        className="max-medium700:max-w-[50px] hover:cursor-pointer justify-self-center invert max-w-[40px] max-h-[40px]"
                                         src="/play.png"
                                         onClick={() => {
                                             SetIsPaused(!paused);
@@ -322,7 +375,7 @@ export default function Page() {
                                     ></img>
                                 )}
                                 <img
-                                    className="max-medium700:mx-5 max-medium700:max-w-[25px] hover:cursor-pointer dark:invert max-w-[30px] max-h-[30px]"
+                                    className="max-medium700:mx-5 max-medium700:max-w-[25px] hover:cursor-pointer max-w-[30px] max-h-[30px]"
                                     src="/forward-icon.png"
                                     onClick={() => {
                                         PlayNextSong(localStorage["access"]).then((e2) => {
@@ -344,6 +397,6 @@ export default function Page() {
                 </div>
             </motion.div>
             {windowWidth >= 700 && <PlaylistMenu data={playlistData} SetReloadFlag={SetReloadPlayer} SetNewData={SetTempQueueData}></PlaylistMenu>}
-        </>
+        </div>
     );
 }
