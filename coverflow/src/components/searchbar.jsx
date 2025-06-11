@@ -60,7 +60,7 @@ export default function SearchBar({className, SetReload, SetNewData})
     }, [searchParam])
     return(
         <div ref={barRef} className={className}>
-            <div style={{transition: ["height 1s ease", "width 0.3s ease"]}} className={`transition transition-ease-in-out !z-[9999] overflow-y-scroll overflow-x-hidden rounded-3xl max-h-[400px] hover:w-[600px] items-start px-[10px] py-[10px] space-x-[5px] bg-[#ff0000] ${enabled ? "h-auto w-[600px]" : 'h-[45px] w-[350px]'} hover:h-auto  shadow-lg bg-[rgba(233,233,233,1)] dark:bg-[#1D1D1F] border-[#A0A0A0] border-[0.5px] dark:border-[#6E6E73]`}>
+            <div style={{"scrollbarWidth": "none", "::WebkitScrollbar": {display: "none"}, transition: "width 0.25s",transition: ["height 1s ease", "width 0.3s ease"]}} className={`transition transition-ease-in-out !z-[9999] overflow-y-scroll overflow-x-hidden rounded-3xl max-h-[400px] hover:w-[600px] items-start px-[10px] py-[10px] space-x-[5px] bg-[#ff0000] ${enabled ? "h-auto w-[600px]" : 'h-[45px] w-[350px]'} hover:h-auto  shadow-lg bg-[rgba(233,233,233,1)] dark:bg-[#1D1D1F] border-[#A0A0A0] border-[0.5px] dark:border-[#6E6E73]`}>
                 <div className="w-full flex flex-row">
                     <img src="/search.svg" className="dark:invert"></img>
                     <input onFocus={()=>SetEnabled(true)} onBlur={()=>{SetEnabled(false)}} ref = {textRef} onChange={e=>SetSearchParam(e.target.value)} type="text" placeholder="Search" className="w-full outline-none"></input>
