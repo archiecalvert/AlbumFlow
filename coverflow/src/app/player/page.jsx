@@ -69,7 +69,7 @@ export default function Page() {
                             albumSwiper.slideTo(i);
                         }
                     }
-                    //if (!inQueue) window.location.href = "/player";
+                    if (!inQueue) window.location.href = "/player";
                 }
             } catch {
                 (e) => console.log(e);
