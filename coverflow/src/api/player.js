@@ -195,7 +195,7 @@ export async function PlayPlaylistOrSong(accessToken, uri, playlist_id) {
             }).then(async res2 => {
                 let res = await res2.json()
                 // Adds the queue data
-                
+                if(res.tracks == undefined) return
                 for (let i = 0; i < res.tracks.items.length; i++) {
                     data[i] = {
                         name: res.tracks.items[i].track.name,
@@ -209,5 +209,35 @@ export async function PlayPlaylistOrSong(accessToken, uri, playlist_id) {
         }
 
     })
+    return data;
+}
+
+export async function TryPlayOnDevice(accessToken, deviceID)
+{
+    let data = null;
+    await fetch("https://api.spotify.com/v1/me/player", {
+        method: "put",
+        headers: {
+            "Authorization": "Bearer " + accessToken
+        },
+        body: JSON.stringify({device_ids: [deviceID]})
+    }).then(async (res) => {
+        let data = await res;
+    });
+    return data;
+}
+
+export async function Search(accessToken, query, type)
+{
+    let data = null;
+    await fetch("https://api.spotify.com/v1/search?" + (new URLSearchParams({q: query, type: type})).toString(), {
+        method: "get",
+        headers: {
+            "Authorization": "Bearer " + accessToken
+        },
+        
+    }).then(async (res) => {
+        data = await res.json();
+    });
     return data;
 }

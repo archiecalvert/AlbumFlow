@@ -8,8 +8,9 @@ import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
 import { EffectCoverflow, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/effect-coverflow";
-import { GetPlaybackState, GetQueue, GetUserSavedAlbums, PlayNextSong, PlayPreviousSong, TogglePlayback } from "@/api/player";
+import { GetPlaybackState, GetQueue, GetUserSavedAlbums, PlayNextSong, PlayPreviousSong, Search, TogglePlayback, TryPlayOnDevice } from "@/api/player";
 import PlaylistMenu from "@/components/playlistmenu";
+import SearchBar from "@/components/searchbar";
 
 export default function Page() {
     const [albumSwiper, SetAlbumSwiper] = useState(null);
@@ -34,12 +35,18 @@ export default function Page() {
     const [APILimit, SetAPILimit] = useState(20)
     const [correctionDelay, SetCorrectionDelay] = useState(3)
     const [backgroundColours, SetBackgroundColours] = useState([])
+    const [deviceFound, SetDeviceFound] = useState(false);
 
     if (typeof window !== "undefined") document.title = "Player | AlbumFlow";
 
     async function UpdateState() {
         const responses = Promise.allSettled([GetPlaybackState(localStorage["access"])]).then(async (vals) => {
             try {
+                if(await vals[0].status=="fulfilled" && await vals[0].value.device.id != null)
+                {
+                    SetDeviceFound(true)
+                }
+
                 const temp = await vals[0].value.is_playing;
                 SetIsPaused(!temp);
                 SetPlaybackState([await vals[0].value.progress_ms, await vals[0].value.item.duration_ms]);
@@ -62,7 +69,7 @@ export default function Page() {
                             albumSwiper.slideTo(i);
                         }
                     }
-                    if (!inQueue) window.location.href = "/player";
+                    //if (!inQueue) window.location.href = "/player";
                 }
             } catch {
                 (e) => console.log(e);
@@ -91,7 +98,7 @@ export default function Page() {
                 if(!paused) SetPlaybackState(c => [c[0] + 100, c[1]])
             }
 
-            if(albumSwiper == null || queueData[albumSwiper.activeIndex] == undefined || albumSwiper == undefined) return;
+            if(queueData == null || albumSwiper == null || queueData[albumSwiper.activeIndex] == undefined || albumSwiper == undefined) return;
             Vibrant.from(albumSwiper.el.childNodes[0].childNodes[albumSwiper.activeIndex].children[0].src)
                 .getPalette()
                 .then((palette) => {
@@ -106,6 +113,7 @@ export default function Page() {
 
         const i2 = setInterval(
             () => {
+                
                 // Refreshes the access token after 50 minutes
                 RefreshToken(localStorage["refresh"]).then((vals) => {
                     localStorage["access"] = vals.access;
@@ -182,7 +190,7 @@ export default function Page() {
         if (albumSwiper == null) return;
         albumRef.current = albumSwiper;
         const i = albumSwiper.activeIndex;
-        if (queueData[i] == undefined) return;
+        if (queueData == null || queueData[i] == undefined) return;
         SetCurrentTitle(queueData[i].name);
         SetCurrentArtist(queueData[i].artist);
     }, [queueData, albumSwiper]);
@@ -235,28 +243,6 @@ export default function Page() {
         }
         GetData();
     }, []);
-    useEffect(()=>{
-        return
-        function subtractChannels(rgbValues, amount)
-        {
-            let d = [];
-            for(let j = 0; j < rgbValues.length; j++)
-            {
-                d[j] = rgbValues[j] - amount < 0 ? 0 : rgbValues[j] - amount;
-            }
-            return d
-        }
-        if(queueData[currentPos] == undefined || albumSwiper == undefined) return;
-        Vibrant.from(albumSwiper.el.childNodes[0].childNodes[albumSwiper.activeIndex].children[0].src)
-            .getPalette()
-            .then((palette) => {
-                let data = palette.Vibrant._rgb;
-                let data2 = palette.LightVibrant._rgb//subtractChannels(data, 50);
-                let data3 = palette.DarkVibrant._rgb;
-                SetBackgroundColours([data, data2, data3]);
-                
-            });
-    }, [currentPos, queueData, albumSwiper])
 
     function isDarkMode() {
         return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -278,6 +264,8 @@ export default function Page() {
     
     return (
         <div style = {{background: `${backgroundColours[0] != undefined && `linear-gradient(to bottom, rgba(${backgroundColours[1][0]}, ${backgroundColours[1][1]}, ${backgroundColours[1][2]}, 1), rgba(${backgroundColours[2][0]}, ${backgroundColours[2][1]}, ${backgroundColours[2][2]}, 1))`}`}}>
+            <SearchBar SetNewData={SetTempQueueData} SetReload={SetReloadPlayer} className={"z-[100] absolute medium700:top-[15px] top-[-55px] mx-[50%] -translate-x-1/2"}></SearchBar>
+
             <motion.div style={{ backgroundColor: `${backgroundColours[0] != undefined && `rgba(${backgroundColours[0][0]}, ${backgroundColours[0][1]}, ${backgroundColours[0][2]}, 0.5)`}`, transition: 'background 0.75s ease', height:"calc(100vh)", }} className="transition-colors duration-1000 mt-[-50px] flex items-center overflow-hidden text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{}}>
                 <div className="min-w-0">
                 <Swiper
@@ -297,7 +285,7 @@ export default function Page() {
                     }}
                     pagination={false}
                     modules={[EffectCoverflow, Navigation]}
-                    className="min-w-[250px] overflow-hidden"
+                    className="!-z-0 min-w-[250px] overflow-hidden"
                     onSwiper={(e) => {
                         SetAlbumSwiper(e);
                         setCurrentPos(e.activeIndex);
@@ -326,7 +314,7 @@ export default function Page() {
                             })
                     }
                 </Swiper>
-                {queueData.length != 0 && (
+                {queueData != null && queueData.length != 0 && (
                     <div className="mb-[50px] grid space-y-5 max-cols-1 w-[40%] max-medium700:w-[80%] mx-[50%] -translate-x-1/2">
                         <>
                             <h1 style={{transition: 'color 0.1s ease', color: `${backgroundColours[0] != undefined && backgroundColours[0] != null ? tinycolor.mostReadable(tinycolor(rgbToHex(backgroundColours[1])), ['#000000', '#ffffff']).toHexString() : "rgba(0,0,0,0)"}`}} className="invert text-nowrap overflow-x-hidden text-[30px]">{currentTitle}</h1>
@@ -397,6 +385,13 @@ export default function Page() {
                 </div>
             </motion.div>
             {windowWidth >= 700 && <PlaylistMenu data={playlistData} SetReloadFlag={SetReloadPlayer} SetNewData={SetTempQueueData}></PlaylistMenu>}
+            {deviceFound == false && 
+            <motion.div className="absolute flex items-center flex-col top-0 w-[100vw] h-[100vh]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{}}>
+                <div className="my-auto text-center w-[80%]">
+                    <h1 className="text-[35px]">No Device Found</h1>
+                    <h1 className="text-[20px] opacity-[50%]">Start playing music on Spotify to begin.</h1>
+                </div>
+            </motion.div>}
         </div>
     );
 }
