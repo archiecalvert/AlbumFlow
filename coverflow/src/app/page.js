@@ -9,6 +9,7 @@ import { EffectCoverflow, Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 
+// Artwork on the main page for the Swiper
 const DummyArt = [
     "https://i.scdn.co/image/ab67616d0000b2730d545f68474bf0dbf975aa94",
     "https://i.scdn.co/image/ab67616d0000b27395c46b8fc115329971316b30",
@@ -33,12 +34,17 @@ const DummyArt = [
 ]
 export default function Home() {
     
+    // Holds the number of tracks on screen
     const [artCount, SetArtCount] = useState(null);
+
+    // Holds the current window dimensions
     const [windowWidth, SetWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth :1920);
     const [windowHeight, SetWindowHeight] = useState(typeof window !== "undefined" ?window.innerHeight:1080);
 
+    // Changes the title of the page
     if (typeof window !== "undefined") document.title = "Home | AlbumFlow";
 
+    // Function that calculates how many artworks should be present on screen in the swiper
     function calculateArtCount(){
         if(windowWidth < 700) SetArtCount(2);
         else if(windowWidth < 900) SetArtCount(3);
@@ -46,13 +52,18 @@ export default function Home() {
         else SetArtCount(5);
     }
 
+    // Adds an event listener to window resizing
     useEffect(()=>{window.addEventListener("resize", ()=>{SetWindowWidth(window.innerWidth); SetWindowHeight(window.innerHeight);});}, [])
+    
+    // Changes the number of artworks on screen each time the window is resized
     useEffect(()=>{
         calculateArtCount()
     }, [windowWidth, windowHeight])
+
     return (
         <>
             <div className="page-content justify-center w-full">
+                {/* Once loaded on screen, it will fade the content on screen */}
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{}}>
                     <Swiper effect={'coverflow'} id="swiper"
                         cssMode={false}
@@ -79,13 +90,13 @@ export default function Home() {
                     >
                     {
                         // Adds all the album artwork to the carousel
-                    DummyArt.map((item, index) => {
-                        return (
-                            <SwiperSlide key={index}>
-                                <img className="rounded-lg shadow-lg my-[50px]" src={item}></img>
-                            </SwiperSlide>
-                        );
-                    })}
+                        DummyArt.map((item, index) => {
+                            return (
+                                <SwiperSlide key={index}>
+                                    <img className="rounded-lg shadow-lg my-[50px]" src={item}></img>
+                                </SwiperSlide>
+                            );
+                        })}
                     </Swiper>
                  </motion.div>
                 <div className="grid justify-items-center space-y-3 max-cols-1 mb-[150px]">

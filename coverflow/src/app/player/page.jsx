@@ -13,8 +13,19 @@ import PlaylistMenu from "@/components/playlistmenu";
 import SearchBar from "@/components/searchbar";
 
 export default function Page() {
+
+    // Reference to the main swiper
     const [albumSwiper, SetAlbumSwiper] = useState(null);
+
+    // Secondary Reference to the main swiper
     const albumRef = useRef(albumSwiper);
+
+     /* Holds the data of the current queue
+       This is in an object with the values:
+           - name : The name of the album/data item
+           - artist : The name of the artist which created the item
+           - artwork : A URL that contains the album artwork
+    */
     const [queueData, SetQueueData] = useState([]);
     const [windowWidth, SetWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1920);
     const [windowHeight, SetWindowHeight] = useState(typeof window !== "undefined" ? window.innerHeight: 1080);
@@ -45,6 +56,7 @@ export default function Page() {
                 if(await vals[0].status=="fulfilled" && await vals[0].value.device.id != null)
                 {
                     SetDeviceFound(true)
+                    localStorage["deviceID"] = vals[0].value.device.id;
                 }
 
                 const temp = await vals[0].value.is_playing;

@@ -1,9 +1,14 @@
 import { PlayPlaylistOrSong } from "@/api/player";
 
+/*
+
+Side menu on the "/player" page.
+Displays the users saved playlists which can be played upon clicking on them
+
+*/
 export default function PlaylistMenu({data, SetReloadFlag = ()=>{}, SetNewData = () => {}})
 {
     return(
-        
         <div style = {style} className="text-left ease-initial transition ease-in-out grid max-cols-1 overflow-x-hidden p-[10px] max-w-[90%] space-y-[10px] overscroll-none overflow-y-scroll h-[90%] w-[75px] hover:w-[350px] fixed top-[0px] mt-[50px] left-[10px] z-[10] rounded-lg shadow-lg bg-[rgba(233,233,233,1)] dark:bg-[#1D1D1F] border-[#A0A0A0] border-[0.5px] dark:border-[#6E6E73]">
             {(data!=null && data.items!=undefined) && data.items.map((item, index) => {
                 return(

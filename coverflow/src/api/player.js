@@ -220,9 +220,10 @@ export async function TryPlayOnDevice(accessToken, deviceID)
         headers: {
             "Authorization": "Bearer " + accessToken
         },
-        body: JSON.stringify({device_ids: [deviceID]})
+        body: JSON.stringify({device_ids: [deviceID], play: true})
     }).then(async (res) => {
-        let data = await res;
+        data = await res;
+        console.log(res)
     });
     return data;
 }

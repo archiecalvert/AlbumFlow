@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 
 export default function Header()
 {
+    // Used to invert the colour of the text
     const [invert, SetInvert] = useState(false)
     useEffect(()=>{
-        console.log(window.location.pathname == "/player")
         SetInvert(window.location.pathname == "/player")
-        console.log(invert)
     }, [])
+
     return(
         <>
             <div className="h-[50px] w-full flex justify-center">
