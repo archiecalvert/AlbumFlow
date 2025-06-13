@@ -26,7 +26,6 @@ export async function GetQueue(accessToken) {
         }
     }).then(async (response) => {
         let res = await response.json()
-
         let data = []
         // Adds the current song details to the queue data
         if (res.currently_playing != null) {
@@ -220,10 +219,9 @@ export async function TryPlayOnDevice(accessToken, deviceID)
         headers: {
             "Authorization": "Bearer " + accessToken
         },
-        body: JSON.stringify({device_ids: [deviceID], play: true})
+        body: JSON.stringify({device_ids: [deviceID], play: false})
     }).then(async (res) => {
         data = await res;
-        console.log(res)
     });
     return data;
 }

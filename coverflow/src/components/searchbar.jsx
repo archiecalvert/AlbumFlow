@@ -32,11 +32,9 @@ export default function SearchBar({className, SetReload, SetNewData})
         {
             // Runs each time the mouse is moved
             window.addEventListener('mousemove', function (e) {
+                if(barRef == null) return;
                 // Get the bounding box of the searchbar
                 const rect = barRef.current.getBoundingClientRect();
-
-                // Gets the current mouse position on screen
-                const mousePos = [e.clientX, e.clientY]
 
                 // Check to see if the mouse is within the searchbar
                 SetMouseTouching(rect.x < e.clientX &&
