@@ -16,6 +16,11 @@ const inter = Inter({
 export const metadata = {
   title: "AlbumFlow",
   description: "",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent"
+  }
+
 };
 
 export default function RootLayout({ children }) {
