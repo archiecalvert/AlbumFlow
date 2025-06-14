@@ -3,10 +3,9 @@ export default function manifest() {
       name: 'AlbumFlow',
       short_name: 'AlbumFlow',
       description: '',
-      start_url: '/',
+      start_url: '/player',
       display: 'standalone',
-      background_color: '#FFFFFF',
-      theme_color: '#FFFFFF',
+
         /*
       icons: [
         {

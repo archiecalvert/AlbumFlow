@@ -174,6 +174,7 @@ export default function Page() {
             player.getCurrentState().then(async e=>{
                 if(await e == null || await e == undefined) return;
                 if(await e.track_window == null || e.track_window == undefined) return
+                if(await e.track_window.current_track == null || e.track_window.current_track == undefined) return
                 SetCurrentTrack(await e.track_window.current_track.name)
                 SetPlaybackState([await e.position, await e.duration])
                 SetIsPaused(await e.paused)
@@ -316,6 +317,9 @@ export default function Page() {
         );
     }
 
+    function isRunningStandalone() {
+        return (window.matchMedia('(display-mode: standalone)').matches);
+    }
     // Blank intermediate page
     if (!isLoaded) return <></>;
 
@@ -332,10 +336,10 @@ export default function Page() {
 
     );
     return (
-        <div style = {{background: `${backgroundColours[0] != undefined && `linear-gradient(to bottom, rgba(${backgroundColours[1][0]}, ${backgroundColours[1][1]}, ${backgroundColours[1][2]}, 1), rgba(${backgroundColours[2][0]}, ${backgroundColours[2][1]}, ${backgroundColours[2][2]}, 1))`}`}}>
-            <SearchBar SetNewData={SetTempQueueData} SetReload={SetReloadPlayer} className={"z-[100] absolute top-[15px] mx-[50%] -translate-x-1/2"}></SearchBar>
+        <div className="" style = {{background: `${backgroundColours[0] != undefined && `linear-gradient(to bottom, rgba(${backgroundColours[1][0]}, ${backgroundColours[1][1]}, ${backgroundColours[1][2]}, 1), rgba(${backgroundColours[2][0]}, ${backgroundColours[2][1]}, ${backgroundColours[2][2]}, 1))`}`}}>
+            <SearchBar SetNewData={SetTempQueueData} SetReload={SetReloadPlayer} className={"z-[100] absolute top-[15px] standalone:top-[55px] mx-[50%] -translate-x-1/2"}></SearchBar>
 
-            <motion.div style={{ backgroundColor: `${backgroundColours[0] != undefined && `rgba(${backgroundColours[0][0]}, ${backgroundColours[0][1]}, ${backgroundColours[0][2]}, 0.5)`}`, transition: 'background 0.75s ease', height:"calc(100vh)", }} className="transition-colors duration-1000 mt-[-50px] flex items-center overflow-hidden text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{}}>
+            <motion.div style={{ backgroundColor: `${backgroundColours[0] != undefined && `rgba(${backgroundColours[0][0]}, ${backgroundColours[0][1]}, ${backgroundColours[0][2]}, 0.5)`}`, transition: 'background 0.75s ease', height: windowHeight + (isRunningStandalone() ? 60 : -1)}} className="transition-colors duration-1000 flex items-center overflow-hidden text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{}}>
                 <div className="min-w-0">
                 <Swiper
                     effect={"coverflow"}
@@ -468,7 +472,7 @@ export default function Page() {
                 )}
                 </div>
             </motion.div>
-            
+
         </div>
     );
 }

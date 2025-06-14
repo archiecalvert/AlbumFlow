@@ -62,7 +62,7 @@ export default function Home() {
 
     return (
         <>
-            <div className="page-content justify-center w-full">
+            <div className="page-content mt-[50px] justify-center w-full">
                 {/* Once loaded on screen, it will fade the content on screen */}
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{}}>
                     <Swiper effect={'coverflow'} id="swiper"

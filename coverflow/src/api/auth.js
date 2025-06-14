@@ -1,5 +1,5 @@
 
-const API_URL = "https://api.archiecalvert.com"
+const API_URL = "http://localhost:4000"//"https://api.archiecalvert.com"
 /*
 
 Redirects the page to the spotify login page which contains all the relevant data

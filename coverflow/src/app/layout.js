@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/header";
+import Head from "next/head";
 
 
 const geistSans = Geist({
@@ -19,20 +20,27 @@ export const metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent"
-  }
+  },
 
 };
 
+export const viewport = {
+  viewportFit: "cover"
+}
+
 export default function RootLayout({ children }) {
   return (
+    
     <html lang="en">
       <body
         className={`${inter.variable} ${inter.variable} antialiased`}
-      >
+        
+        >
         <Header></Header>
 
         {children}
       </body>
     </html>
+    
   );
 }
