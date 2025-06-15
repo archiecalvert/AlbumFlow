@@ -1,4 +1,4 @@
-import { GetQueue, GetUserSavedAlbums, PlayPlaylistOrSong, Search } from "@/api/player";
+import { GetQueue, GetUserSavedAlbums, PlayPlaylistOrSong, PlaySong, Search } from "@/api/player";
 import { useEffect, useState, useRef } from "react";
 import ButtonGroup from "./buttongroup";
 import Button from "./button";
@@ -53,7 +53,7 @@ export default function SearchBar({className, SetReload, SetNewData})
 
             // Runs each time the mouse is moved
             window.addEventListener('mousemove', function (e) {
-                if(barRef == null) return;
+                if(barRef == null || barRef.current == null) return;
                 // Get the bounding box of the searchbar
                 const rect = barRef.current.getBoundingClientRect();
 
@@ -78,7 +78,9 @@ export default function SearchBar({className, SetReload, SetNewData})
                     artist: datum.owner.display_name,
                     artwork: datum.images[0].url,
                     uri: datum.uri,
-                    id: datum.id
+                    id: datum.id,
+                    onClick: ()=>{PlayPlaylistOrSong(localStorage["access"], datum.uri, datum.id).then(async e=>{SetReload(true); SetNewData(await GetQueue(localStorage["access"]))})}
+
                 })
             })
             SetUserAlbums(data);
@@ -110,7 +112,9 @@ export default function SearchBar({className, SetReload, SetNewData})
                             artwork: datum.images[0].url,
                             artist: datum.artists[0].name,
                             uri: datum.uri,
-                            id: datum.id
+                            id: datum.id,
+                            onClick:()=>{PlayPlaylistOrSong(localStorage["access"], datum.uri, datum.id).then(async e=>{SetReload(true); SetNewData(await GetQueue(localStorage["access"]))})
+                            }
                         })
                     }
                 })
@@ -126,7 +130,9 @@ export default function SearchBar({className, SetReload, SetNewData})
                             artwork: datum.images[0].url,
                             artist: datum.owner.display_name,
                             uri: datum.uri,
-                            id: datum.id
+                            id: datum.id,
+                            onClick: ()=>{PlayPlaylistOrSong(localStorage["access"], datum.uri, datum.id).then(async e=>{SetReload(true); SetNewData(await GetQueue(localStorage["access"]))})
+                            }
                         })
                     }
                 })
@@ -143,11 +149,30 @@ export default function SearchBar({className, SetReload, SetNewData})
                             artwork: datum.images[0].url || "",
                             artist: "",
                             uri: datum.uri || "",
-                            id: datum.id || ""
+                            id: datum.id || "",
+                            onClick: ()=>{PlayPlaylistOrSong(localStorage["access"], datum.uri, datum.id).then(async e=>{SetReload(true); SetNewData(await GetQueue(localStorage["access"]))})
+                            }
                         })
                     }
                 })
                 SetSearchData(data);
+            }
+            else if(filter == "Tracks")
+            {
+                await res.tracks.items.map(datum => {
+                    if(datum != null){         
+                        data.push({
+                            name: datum.name,
+                            artwork: datum.album.images[0].url,
+                            artist: datum.artists[0].name,
+                            uri: datum.uri,
+                            id: datum.id,
+                            onClick: ()=>{PlaySong(localStorage["access"], datum.uri, datum.id).then(async e=>{SetReload(true); SetNewData(await GetQueue(localStorage["access"]))})
+                        }})
+                    }
+                })
+                SetSearchData(data);
+
             }
             
         })
@@ -169,14 +194,15 @@ export default function SearchBar({className, SetReload, SetNewData})
                     {(mouseTouching || enabled) && searchData != null && 
                     <>
                     
-                    <ButtonGroup tab={SetFilter} className="my-[10px] top-0 flex sticky !z-[10]">
+                    <ButtonGroup tab={SetFilter} className="my-[10px] top-0 grid max-desktop:grid-cols-2 grid-cols-4 sticky !z-[10]">
                         <Button backgroundColour="bg-[#1D1D1F] dark:bg-white" textColour="text-white dark:text-black" className="">Albums</Button>
                         <Button backgroundColour="bg-[#1D1D1F] dark:bg-white" textColour="text-white dark:text-black" className="">Playlists</Button>
                         <Button backgroundColour="bg-[#1D1D1F] dark:bg-white" textColour="text-white dark:text-black" className="">Artists</Button>
+                        <Button backgroundColour="bg-[#1D1D1F] dark:bg-white" textColour="text-white dark:text-black" className="">Tracks</Button>
                     </ButtonGroup>
                     {searchData.map((item, index) => {
                         return(
-                            <div onClick={()=>{PlayPlaylistOrSong(localStorage["access"], item.uri, item.id).then(async e=>{SetReload(true); SetNewData(await GetQueue(localStorage["access"]))})}} key={index} className="cursor-pointer flex flex-row w-full h-[60px]">
+                            <div onClick={()=>item.onClick()} key={index} className="cursor-pointer flex flex-row w-full h-[60px]">
                                 <img src={item.artwork} className="my-auto w-[35px] h-[35px] rounded-md aspect-square"></img>
                                 <div className="ml-[10px] my-auto">
                                     <h1 className="text-[15px]">{item.name}</h1>

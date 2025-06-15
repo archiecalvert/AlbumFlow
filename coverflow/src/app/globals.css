@@ -20,6 +20,7 @@
   --breakpoint-desktop: 350px;
   --breakpoint-medium700: 700px;
   --breakpoint-searchBarShrink: 650px;
+
 }
 
 @media (prefers-color-scheme: dark) {

@@ -211,6 +211,24 @@ export async function PlayPlaylistOrSong(accessToken, uri, playlist_id) {
     return data;
 }
 
+export async function PlaySong(accessToken, uri, id) {
+    let data = []
+    await fetch("https://api.spotify.com/v1/me/player/play", {
+        method: "put",
+        headers: {
+            "Authorization": "Bearer " + accessToken
+        },
+        body: JSON.stringify({
+            uris: [uri]
+        })
+    }).then(async (res1) => {
+        data = await res1
+        
+
+    })
+    return data;
+}
+
 export async function TryPlayOnDevice(accessToken, deviceID)
 {
     let data = null;
