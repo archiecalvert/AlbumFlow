@@ -1,5 +1,5 @@
 
-const API_URL = "http://localhost:4000"
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 /*
 
 Redirects the page to the spotify login page which contains all the relevant data
