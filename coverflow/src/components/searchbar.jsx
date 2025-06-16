@@ -14,10 +14,6 @@ export default function SearchBar({className, SetReload, SetNewData})
            - id : The content ID used for changing the players state with the API
     */
     const [searchData, SetSearchData] = useState([]);
-
-    const [playListData, SetPlaylistData] = useState([]);
-    const [albumData, SetAlbumData] = useState([]);
-    const [artistData, SetArtistData] = useState([]);
     
     // Holds the value of the search query in "searchParam"
     const [searchParam, SetSearchParam] = useState("")

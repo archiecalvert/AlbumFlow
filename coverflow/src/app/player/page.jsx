@@ -70,6 +70,16 @@ export default function Page() {
     // The current title given by the player object
     const [currentTrack, SetCurrentTrack] = useState(null);
 
+    // Reference to the song progress bar
+    const progressBarPosition = useRef();
+    const progressBar = useRef();
+    const [seeking, SetSeeking] = useState(false); 
+
+    // Mouse Data
+    const [mousePosition, SetMousePosition] = useState([0, 0]);
+    const [mouseData, SetMouseData] = useState(null);
+    const mouseDataRef = useRef(mouseData)
+
     // Renames the window of the browser
     if (typeof window !== "undefined") document.title = "Player | AlbumFlow";
 
@@ -80,6 +90,12 @@ export default function Page() {
         window.addEventListener("resize", () => {
             SetWindowWidth(window.innerWidth);
             SetWindowHeight(window.innerHeight);
+        });
+
+        // Adds an event listener to track mouse data
+        window.addEventListener("mousemove", e => {
+            SetMouseData(e);
+            SetMousePosition([e.clientX, e.clientY]);
         });
 
         // If there is an error trying to get new credentials
@@ -178,6 +194,20 @@ export default function Page() {
                 SetCurrentTrack(await e.track_window.current_track.name)
                 SetPlaybackState([await e.position, await e.duration])
                 SetIsPaused(await e.paused)
+
+                // Handles skipping to the next song when reached
+                if(e.duration - e.position < 50 && !paused && !seeking)
+                {
+                    const name = e.track_window.next_tracks[0].name
+                    for(let i = 0; i < queueData.length; i++)
+                    {
+                        if(queueData[i].name == name)
+                        {
+                            albumSwiper.slideTo(i)
+                            break;
+                        }
+                    }
+                }
             })
             
             // Checks to see if there is queue data
@@ -283,6 +313,37 @@ export default function Page() {
         else SetArtCount(5);
     }
 
+    // Function that handles when the user changes the song progress
+    function HandleSeek()
+    {
+        // Gets the bounds of the progress bar
+        const rect = progressBar.current.getBoundingClientRect();
+
+        // Calculates the number of pixels across the bar the click happened
+        let diff = mousePosition[0] - rect.x - 5;
+
+        // Calculates this distance as a percentage of the song progress
+        let perc = diff / rect.width;
+
+        // Changes the playback position to this new percentage
+        player.seek(perc * playbackState[1]).then(async (e)=>{
+
+            // Updates the progress bar position
+            SetPlaybackState(prev => [perc * prev[1], prev[1]])
+            await SetSeeking(false)
+            window.removeEventListener("mouseup", ()=>HandleSeek())
+        })
+    }
+
+    useEffect(()=>{
+        mouseDataRef.current = mouseData;
+        if(seeking)
+        {
+            window.addEventListener("mouseup", ()=>HandleSeek())
+        }
+
+    }, [seeking, mouseData])
+
     useEffect(() => {
         if (albumSwiper == null) return;
         albumRef.current = albumSwiper;
@@ -317,9 +378,22 @@ export default function Page() {
         );
     }
 
+    // Checks to see if the user is using the website as a PWA
     function isRunningStandalone() {
         return (window.matchMedia('(display-mode: standalone)').matches);
     }
+
+    // Function that checks to see if the mouse is intersecting a rectangle
+    // Returns:
+    //       - boolean: true if it is touching
+    function CheckIfMouseTouching(rect)
+    {
+        return(rect.x < mousePosition[0] &&
+               rect.x + rect.width > mousePosition[0] &&
+               rect.y < mousePosition[1] &&
+               rect.y + rect.height > mousePosition[1])
+    }
+
     // Blank intermediate page
     if (!isLoaded) return <></>;
 
@@ -387,8 +461,11 @@ export default function Page() {
                         <>
                             <h1 style={{transition: 'color 0.1s ease', color: `${backgroundColours[0] != undefined && backgroundColours[0] != null ? tinycolor.mostReadable(tinycolor(rgbToHex(backgroundColours[1])), ['#000000', '#ffffff']).toHexString() : "rgba(0,0,0,0)"}`}} className="invert text-nowrap overflow-x-hidden text-[30px]">{currentTitle}</h1>
                             <h1 style={{transition: 'color 0.1s ease', color: `${backgroundColours[0] != undefined && backgroundColours[0] != null ? tinycolor.mostReadable(tinycolor(rgbToHex(backgroundColours[1])), ['#000000', '#ffffff']).toHexString() : "rgba(0,0,0,0)"}`}} className="invert text-nowrap overflow-x-hidden text-[15px]">{currentArtist}</h1>
-                            <div style={{transition: 'background 0.1s ease', backgroundColor: `${backgroundColours[0] != undefined && backgroundColours[0] != null ? tinycolor.mostReadable(tinycolor(rgbToHex(backgroundColours[1])), ['rgba(0,0,0,0.35)', 'rgba(256, 256, 256, 0.35)']).toRgbString() : "rgba(0,0,0,0)"}`}} className="invert h-[5px] w-full rounded-full overflow-hidden">
-                                <div style={{transition: 'background 0.1s ease', backgroundColor: `${backgroundColours[0] != undefined && backgroundColours[0] != null ? tinycolor.mostReadable(tinycolor(rgbToHex(backgroundColours[1])), ['#000000', 'rgba(256, 256, 256, 0.6)']).toRgbString() : "rgba(0,0,0,0)"}`, width: `calc(${(100 * playbackState[0]) / playbackState[1]}%)` }} className="!opacity-[100%] bg-gray-500 dark:bg-white h-full"></div>
+                            <div onMouseDown={()=>SetSeeking(true)} className="progressBarContainer grid mt-[-10px] mb-[5px] items-center h-[30px]">
+                                <div ref={progressBar} style={{transition: 'background 0.1s ease', backgroundColor: `${backgroundColours[0] != undefined && backgroundColours[0] != null ? tinycolor.mostReadable(tinycolor(rgbToHex(backgroundColours[1])), ['rgba(0,0,0,0.35)', 'rgba(256, 256, 256, 0.35)']).toRgbString() : "rgba(0,0,0,0)"}`}} className="mt-[-5px] invert h-[5px] w-full rounded-full overflow-hidden">
+                                    <div ref={progressBarPosition} style={{transition: 'background 0.1s ease', backgroundColor: `${backgroundColours[0] != undefined && backgroundColours[0] != null ? tinycolor.mostReadable(tinycolor(rgbToHex(backgroundColours[1])), ['#000000', 'rgba(256, 256, 256, 0.6)']).toRgbString() : "rgba(0,0,0,0)"}`, width: `${seeking ? `${mousePosition[0] - progressBar.current.getBoundingClientRect().x - 5}px` : `calc(${(100 * playbackState[0]) / playbackState[1]}%)`}` }} className="!opacity-[100%] bg-gray-500 dark:bg-white h-full"></div>
+                                </div>
+                                <div style={{backgroundColor: `${backgroundColours[0] != undefined && backgroundColours[0] != null ? tinycolor.mostReadable(tinycolor(rgbToHex(backgroundColours[1])), ['rgba(0,0,0,1)', 'rgba(256, 256, 256, 1)']).toRgbString() : "rgba(0,0,0,0)"}`, transform: `translate(${progressBarPosition.current == null ? "0" : progressBarPosition.current.getBoundingClientRect().width - 1}px,105px)`}}className="invert bg-[#ffffff] !absolute top-0 left-[0px] rounded-full w-[10px] h-[10px] bg-[#000000]"></div>
                             </div>
                             <div className="invert flex justify-between opacity-[50%]">
                                 <h1 style={{transition: 'color 0.1s ease', color: `${backgroundColours[0] != undefined && backgroundColours[0] != null ? tinycolor.mostReadable(tinycolor(rgbToHex(backgroundColours[1])), ['#000000', '#ffffff']).toHexString() : "rgba(0,0,0,0)"}`}}>{ConvertMilliToTime(playbackState[0])}</h1>
